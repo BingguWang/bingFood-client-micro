@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package bingfood.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/go-kratos/user-client-micro/api/user/v1;v1";
+
+
+service BingfoodService {
+  rpc LoginOrRegister (UserLoginOrRegisterRequest) returns (UserLoginOrRegisterReply) {
+    option (google.api.http) = {
+      post: "/user/login",
+      body: "*",
+    };
+  }
+
+  rpc SetUserPassword (SetUserPasswordRequest) returns (SetUserPasswordReply)  {
+    option (google.api.http) = {
+      post: "/user/setPwd",
+      body: "*",
+    };
+  }
+
+}
+message SetUserPasswordRequest {
+  string  userMobile = 1; // 手机号
+  string  password = 2; // 密码
+}
+message SetUserPasswordReply {
+  uint32  retCode = 1;
+  string  retMsg = 2;
+}
+message UserLoginOrRegisterRequest {
+  string  userMobile = 1; // 手机号
+  uint32  loginType = 2; // 登录方式 0 手机号登录 1 密码登录 2 第三方微信登录
+  string  validCode = 3; // 登录密码，账号密码登录不需要验证码
+  string  password = 4; // 1登录 2注册
+}
+
+message UserLoginOrRegisterReply{
+  uint32  retCode = 1;
+  string  retMsg = 2;
+  string  token = 3;
+}
+

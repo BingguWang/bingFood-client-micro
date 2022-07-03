@@ -9,8 +9,8 @@ package main
 import (
 	"github.com/go-kratos/bingfood-client-micro/app/user/service/internal/biz/user"
 	"github.com/go-kratos/bingfood-client-micro/app/user/service/internal/conf"
-	data2 "github.com/go-kratos/bingfood-client-micro/app/user/service/internal/data"
-	server2 "github.com/go-kratos/bingfood-client-micro/app/user/service/internal/server"
+	"github.com/go-kratos/bingfood-client-micro/app/user/service/internal/data"
+	"github.com/go-kratos/bingfood-client-micro/app/user/service/internal/server"
 	"github.com/go-kratos/bingfood-client-micro/app/user/service/internal/service"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
@@ -19,18 +19,19 @@ import (
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, confData *conf.Data, jwt *conf.JWT, logger log.Logger) (*kratos.App, func(), error) {
-	db := data2.NewDB(confData)
-	dataData, cleanup, err := data2.NewData(confData, logger, db)
+func wireApp(confServer *conf.Server, confData *conf.Data, jwt *conf.JWT, logger log.Logger, registry *conf.Registry) (*kratos.App, func(), error) {
+	db := data.NewDB(confData)
+	dataData, cleanup, err := data.NewData(confData, logger, db)
 	if err != nil {
 		return nil, nil, err
 	}
-	userRepo := data2.NewUserRepo(dataData, logger)
+	userRepo := data.NewUserRepo(dataData, logger)
 	userUsecase := user.NewUserUsecase(userRepo, logger)
 	bingfoodServiceImpl := service.NewBingfoodService(userUsecase)
-	httpServer := server2.NewHTTPServer(confServer, jwt, bingfoodServiceImpl, logger)
-	grpcServer := server2.NewGRPCServer(confServer, bingfoodServiceImpl, logger)
-	app := newApp(logger, httpServer, grpcServer)
+	httpServer := server.NewHTTPServer(confServer, jwt, bingfoodServiceImpl, logger)
+	grpcServer := server.NewGRPCServer(confServer, bingfoodServiceImpl, logger)
+	registrar := server.NewRegistrar(registry)
+	app := newApp(logger, httpServer, grpcServer, registrar)
 	return app, func() {
 		cleanup()
 	}, nil

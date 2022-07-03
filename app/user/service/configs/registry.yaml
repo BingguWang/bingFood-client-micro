@@ -1,0 +1,4 @@
+etcd:
+  endpoints:
+    - "0.0.0.0:2379"
+  dialTimeout: 1s

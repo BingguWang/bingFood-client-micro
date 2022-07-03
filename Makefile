@@ -2,7 +2,8 @@ GOPATH:=$(shell go env GOPATH)
 VERSION=$(shell git describe --tags --always)
 #APP_RELATIVE_PATH=$(shell a=`basename $$PWD` && cd .. && b=`basename $$PWD` && echo $$b/$$a)
 APP_RELATIVE_PATH=$(shell a=`basename $$PWD` && cd ./app && b=`basename $$PWD` && echo $$a/$$b)
-INTERNAL_PROTO_FILES=$(shell find internal -name *.proto)
+#INTERNAL_PROTO_FILES=$(shell find internal -name *.proto)
+INTERNAL_PROTO_FILES=$(shell find ./app/user -name *.proto)
 API_PROTO_FILES=$(shell cd ../../../api/$(APP_RELATIVE_PATH) && find . -name *.proto)
 KRATOS_VERSION=$(shell go mod graph |grep go-kratos/kratos/v2 |head -n 1 |awk -F '@' '{print $$2}')
 KRATOS=$(GOPATH)/pkg/mod/github.com/go-kratos/kratos/v2@$(KRATOS_VERSION)
@@ -90,10 +91,18 @@ docker:
 	docker build -f deploy/build/Dockerfile --build-arg APP_RELATIVE_PATH=$(APP_RELATIVE_PATH) -t $(DOCKER_IMAGE) .
 #cd ../../.. &&
 
+.PHONY: config
+# generate internal proto
+config:
+	protoc --proto_path=./app/user/service/internal \
+	       --proto_path=./third_party \
+ 	       --go_out=paths=source_relative:./app/user/service/internal \
+	       $(INTERNAL_PROTO_FILES)
+
 .PHONY: wire
 # generate wire
 wire:
-	cd cmd/server && wire
+	cd ./app/user/service/cmd/server && wire
 
 .PHONY: api
 # generate api proto

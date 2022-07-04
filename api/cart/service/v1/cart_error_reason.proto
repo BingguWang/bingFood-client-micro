@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package cart.service.v1;
+package cart.service.v1.pbgo;
 import "errors/errors.proto";
 
 option go_package = "cart/service/v1;v1";

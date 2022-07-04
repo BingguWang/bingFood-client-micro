@@ -2,7 +2,7 @@ package data
 
 import (
     "context"
-    v1 "github.com/go-kratos/bingfood-client-micro/api/user/service/v1"
+    v1 "github.com/go-kratos/bingfood-client-micro/api/user/service/v1/pbgo/v1"
     "github.com/go-kratos/bingfood-client-micro/app/order/service/internal/conf"
     "github.com/go-kratos/kratos/v2/log"
     "github.com/go-redis/redis/v8"

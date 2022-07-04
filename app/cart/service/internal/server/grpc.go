@@ -1,7 +1,7 @@
 package server
 
 import (
-    v12 "github.com/go-kratos/bingfood-client-micro/api/cart/service/v1"
+    v12 "github.com/go-kratos/bingfood-client-micro/api/cart/service/v1/pbgo/v1"
     "github.com/go-kratos/bingfood-client-micro/app/cart/service/internal/conf"
     "github.com/go-kratos/bingfood-client-micro/app/cart/service/internal/service"
     "github.com/go-kratos/kratos/v2/log"

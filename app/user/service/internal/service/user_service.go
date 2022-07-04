@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 	"fmt"
-    v12 "github.com/go-kratos/bingfood-client-micro/api/user/service/v1"
-	"github.com/go-kratos/bingfood-client-micro/app/user/service/internal/biz/user"
+    v12 "github.com/go-kratos/bingfood-client-micro/api/user/service/v1/pbgo/v1"
+    "github.com/go-kratos/bingfood-client-micro/app/user/service/internal/biz/user"
 )
 
 type UserServiceImpl struct {

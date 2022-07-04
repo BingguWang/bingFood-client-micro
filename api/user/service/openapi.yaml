@@ -6,42 +6,42 @@ info:
   title: UserService API
     version: 0.0.1
 paths:
-    /user/login:
-      post:
-        tags:
-          - UserService
-        operationId: UserService_LoginOrRegister
-        requestBody:
+  /user/login:
+    post:
+      tags:
+        - UserService
+      operationId: UserService_LoginOrRegister
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user.service.v1.UserLoginOrRegisterRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/user.service.v1.UserLoginOrRegisterRequest'
-          required: true
-        responses:
-          "200":
-            description: OK
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/user.service.v1.UserLoginOrRegisterReply'
-    /user/setPwd:
-      post:
-        tags:
-          - UserService
-        operationId: UserService_SetUserPassword
-        requestBody:
+                $ref: '#/components/schemas/user.service.v1.UserLoginOrRegisterReply'
+  /user/setPwd:
+    post:
+      tags:
+        - UserService
+      operationId: UserService_SetUserPassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user.service.v1.SetUserPasswordRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/user.service.v1.SetUserPasswordRequest'
-          required: true
-        responses:
-          "200":
-            description: OK
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/user.service.v1.SetUserPasswordReply'
+                $ref: '#/components/schemas/user.service.v1.SetUserPasswordReply'
 components:
   schemas:
     user.service.v1.SetUserPasswordReply:

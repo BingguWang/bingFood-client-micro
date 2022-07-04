@@ -41,8 +41,8 @@ http:
 errors:
 	cd ../../../api/$(APP_RELATIVE_PATH) && protoc --proto_path=. \
            --proto_path=../../../third_party \
-           --go_out=paths=source_relative:. \
-           --go-errors_out=paths=source_relative:. \
+           --go_out=paths=source_relative:./v1/pbgo \
+           --go-errors_out=paths=source_relative:./v1/pbgo \
            $(API_PROTO_FILES)
 
 
@@ -110,9 +110,9 @@ wire:
 api:
 	cd ../../../api/$(APP_RELATIVE_PATH) && protoc --proto_path=. \
 	       --proto_path=../../../third_party \
- 	       --go_out=paths=source_relative:. \
- 	       --go-http_out=paths=source_relative:. \
- 	       --go-grpc_out=paths=source_relative:. \
+ 	       --go_out=paths=source_relative:./v1/pbgo/ \
+ 	       --go-http_out=paths=source_relative:./v1/pbgo/ \
+ 	       --go-grpc_out=paths=source_relative:./v1/pbgo/ \
 	       --openapi_out=fq_schema_naming=true,default_response=false:. \
 		        $(API_PROTO_FILES)
 

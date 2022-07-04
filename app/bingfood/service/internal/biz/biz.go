@@ -3,7 +3,7 @@ package biz
 import (
     "context"
     "fmt"
-    v13 "github.com/go-kratos/bingfood-client-micro/api/order/service/v1"
+    v13 "github.com/go-kratos/bingfood-client-micro/api/order/service/v1/pbgo/v1"
     "github.com/go-kratos/bingfood-client-micro/app/bingfood/service/internal/conf"
     "github.com/go-kratos/kratos/contrib/registry/etcd/v2"
     "github.com/go-kratos/kratos/v2/middleware/recovery"

@@ -2,7 +2,7 @@ package biz
 
 import (
     "context"
-    v1 "github.com/go-kratos/bingfood-client-micro/api/cart/service/v1"
+    v1 "github.com/go-kratos/bingfood-client-micro/api/cart/service/v1/pbgo/v1"
     "github.com/go-kratos/bingfood-client-micro/app/cart/service/internal/data/entity"
     "github.com/go-kratos/bingfood-client-micro/app/cart/service/internal/utils"
     "github.com/go-kratos/kratos/v2/log"

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package bingfood.v1;
+package user.v1;
 
 import "google/api/annotations.proto";
 
@@ -44,3 +44,16 @@ message UserLoginOrRegisterReply{
   string  token = 3;
 }
 
+message UserDeliveryAddr  {
+  uint32  userDeliveryAddrId = 1;
+  uint64  userId = 2;
+  string  Receiver = 3;
+  uint32  ProvinceId = 4;
+  string  Province = 5;
+  uint32  CityId = 6;
+  string  City = 7;
+  uint32  AreaId = 8;
+  string  Area = 9;
+  string  Detail = 10;
+
+}

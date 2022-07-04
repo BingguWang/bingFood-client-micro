@@ -10,7 +10,7 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
-// ProviderSet is server providers.
+// ProviderSet is configs providers.
 var ProviderSet = wire.NewSet(NewHTTPServer, NewGRPCServer, NewRegistrar)
 
 func NewRegistrar(cf *conf.Registry) registry.Registrar {

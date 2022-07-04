@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package cart.service.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "api/cart/service/v1;v1";
+
+
+service CartService {
+  rpc AddCartItem (AddCartItemRequest) returns (AddCartItemReply) {
+    //    option (google.api.http) = {
+    //      post: "/cart/addItem",
+    //      body: "*",
+    //    };
+  }
+
+  rpc GetCartByCond (GetCartByCondRequest) returns (GetCartByCondReply) {}
+  rpc GetCartByCartIds (GetCartByCartIdsRequest) returns (GetCartByCartIdsReply) {}
+
+}
+
+message PageInfo  {
+  int64 Page = 1;
+  int64 PageSize = 2;
+}
+
+message GetCartByCondRequest{
+  Cart cartCond = 1;
+  PageInfo pageInfo = 2;
+}
+message GetCartByCartIdsRequest{
+  repeated uint64 ids = 1;
+  PageInfo pageInfo = 2;
+}
+
+message GetCartByCartIdsReply {
+  uint32  retCode = 1;
+  string  retMsg = 2;
+  CartPagination data = 3;
+}
+
+message GetCartByCondReply{
+  uint32  retCode = 1;
+  string  retMsg = 2;
+  CartPagination data = 3;
+}
+
+message CartPagination{
+  repeated Cart  list = 1;
+  int64 total = 2;
+  int64 page = 3;
+  int64 PageSize = 4;
+}
+
+message AddCartItemRequest{
+  uint64 cartId = 1;
+  uint64 shopId = 2;
+  uint64 UserId = 3;
+  uint64 SkuId = 4;
+  int32  ProdNums = 5;
+}
+
+message AddCartItemReply {
+  uint32  retCode = 1;
+  string  retMsg = 2;
+}
+
+message Cart {
+  message Sku {
+    uint64 skuId = 1;
+    string skuName = 2;
+    string prodName = 3;
+    uint64 prodId = 4;
+    int32 price = 5;
+    int32 oriPrice = 6;
+    int32 packingFee = 7;
+    uint32 shopId = 8;
+    string pic = 9;
+    string imags = 10;
+    uint32 weight = 11;
+    uint32 sellStatus = 12;
+    uint32 stock = 13;
+  }
+  uint64 cartId = 1;
+  uint64 userId = 2;
+  uint64 shopId = 3;
+  uint64 skuId = 4;
+  uint64 prodId = 5;
+  int32 prodNums = 6;
+  Sku sku = 9;
+}

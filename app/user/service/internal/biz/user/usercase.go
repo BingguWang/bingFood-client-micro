@@ -16,12 +16,12 @@ var (
 )
 
 type UserRepo interface {
-	Save(context.Context, *User) error
-	Update(context.Context, *User) error
-	FindByID(context.Context, int64) (*User, error)
-	ListByHello(context.Context, string) ([]*User, error)
-	ListAll(context.Context) ([]*User, error)
-	GetUserByCond(ctx context.Context, user *User) ([]*User, error)
+    Save(context.Context, *User) error
+    Update(context.Context, *User) error
+    //FindByID(context.Context, int64) (*User, error)
+    //ListByHello(context.Context, string) ([]*User, error)
+    //ListAll(context.Context) ([]*User, error)
+    GetUserByCond(ctx context.Context, user *User) ([]*User, error)
 }
 
 type UserUsecase struct {

@@ -3,19 +3,37 @@
 
 openapi: 3.0.3
 info:
-    title: BingfoodService API
+  title: ""
     version: 0.0.1
 paths:
-    /user/login:
-        post:
-            tags:
-                - BingfoodService
-            operationId: BingfoodService_LoginOrRegister
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/bingfood.v1.UserLoginOrRegisterRequest'
+  /order/toSettle:
+    post:
+      tags:
+        - OrderService
+      operationId: OrderService_LoginOrRegister
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/order.v1.SettleOrderRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/order.v1.SettleOrderReply'
+  /user/login:
+    post:
+      tags:
+        - BingfoodService
+      operationId: BingfoodService_LoginOrRegister
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user.v1.UserLoginOrRegisterRequest'
                 required: true
             responses:
                 "200":
@@ -23,7 +41,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/bingfood.v1.UserLoginOrRegisterReply'
+                              $ref: '#/components/schemas/user.v1.UserLoginOrRegisterReply'
     /user/setPwd:
         post:
             tags:
@@ -33,7 +51,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/bingfood.v1.SetUserPasswordRequest'
+                          $ref: '#/components/schemas/user.v1.SetUserPasswordRequest'
                 required: true
             responses:
                 "200":
@@ -41,45 +59,146 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/bingfood.v1.SetUserPasswordReply'
+                              $ref: '#/components/schemas/user.v1.SetUserPasswordReply'
 components:
-    schemas:
-        bingfood.v1.SetUserPasswordReply:
-            type: object
-            properties:
-                retCode:
-                    type: integer
-                    format: uint32
-                retMsg:
-                    type: string
-        bingfood.v1.SetUserPasswordRequest:
-            type: object
-            properties:
-                userMobile:
-                    type: string
-                password:
-                    type: string
-        bingfood.v1.UserLoginOrRegisterReply:
-            type: object
-            properties:
-                retCode:
-                    type: integer
-                    format: uint32
-                retMsg:
-                    type: string
-                token:
-                    type: string
-        bingfood.v1.UserLoginOrRegisterRequest:
-            type: object
-            properties:
-                userMobile:
-                    type: string
-                loginType:
-                    type: integer
-                    format: uint32
-                validCode:
-                    type: string
-                password:
+  schemas:
+    order.v1.OrderItem:
+      type: object
+      properties:
+        OrderItemId:
+          type: integer
+          format: uint64
+        OrderNumber:
+          type: string
+        UserId:
+          type: integer
+          format: uint64
+        Score:
+          type: integer
+          format: int32
+        ShopId:
+          type: integer
+          format: uint64
+        ProdId:
+          type: integer
+          format: uint64
+        ProdName:
+          type: string
+        ProdNums:
+          type: integer
+          format: uint32
+        Pic:
+          type: string
+        ProdAmount:
+          type: integer
+          format: uint32
+        SkuId:
+          type: integer
+          format: uint32
+        SkuName:
+          type: string
+        Price:
+          type: integer
+          format: int32
+        oriPrice:
+          type: integer
+          format: int32
+        PropId:
+          type: integer
+          format: uint64
+        PropName:
+          type: string
+        IsCommented:
+          type: integer
+          format: uint32
+        IsGood:
+          type: integer
+          format: uint32
+        Comment:
+          type: string
+    order.v1.SettleOrderReply:
+      type: object
+      properties:
+        ShopId:
+          type: integer
+          format: uint64
+        UserId:
+          type: integer
+          format: uint64
+        UserMobile:
+          type: string
+        ReceiverMobile:
+          type: string
+        ProdName:
+          type: string
+        ProdNums:
+          type: integer
+          format: int32
+        PackingAmount:
+          type: integer
+          format: int32
+        DeliverAmount:
+          type: integer
+          format: int32
+        ProdAmount:
+          type: integer
+          format: int32
+        DiscountAmount:
+          type: integer
+          format: int32
+        FinalAmount:
+          type: integer
+          format: int32
+        DeliverType:
+          type: integer
+          format: uint32
+        OrderItems:
+          $ref: '#/components/schemas/order.v1.OrderItem'
+    order.v1.SettleOrderRequest:
+      type: object
+      properties:
+        basketIds:
+          type: array
+          items:
+            type: integer
+            format: uint64
+    user.v1.SetUserPasswordReply:
+      type: object
+      properties:
+        retCode:
+          type: integer
+          format: uint32
+        retMsg:
+          type: string
+    user.v1.SetUserPasswordRequest:
+      type: object
+      properties:
+        userMobile:
+          type: string
+        password:
+          type: string
+    user.v1.UserLoginOrRegisterReply:
+      type: object
+      properties:
+        retCode:
+          type: integer
+          format: uint32
+        retMsg:
+          type: string
+        token:
+          type: string
+    user.v1.UserLoginOrRegisterRequest:
+      type: object
+      properties:
+        userMobile:
+          type: string
+        loginType:
+          type: integer
+          format: uint32
+        validCode:
+          type: string
+        password:
                     type: string
 tags:
-    - name: BingfoodService
+  - name: BingfoodService
+  - name: OrderService

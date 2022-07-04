@@ -26,7 +26,7 @@ func NewSkipAuthMatcher() selector.MatchFunc {
     }
 }
 
-// NewHTTPServer new a HTTP server.
+// NewHTTPServer new a HTTP configs.
 func NewHTTPServer(c *conf.Server, jwtc *conf.JWT, svc *service.BingfoodServiceImpl, logger log.Logger) *http.Server {
     var opts = []http.ServerOption{
 

@@ -8,7 +8,7 @@ RUN go env -w GO111MODULE=on \
     && go env -w GOPROXY=https://goproxy.cn,direct \
     && go env -w CGO_ENABLED=0 \
     && mkdir -p bin/  \
-    && go build  -o ./server ./...
+    && go build  -o ./configs ./...
 
 FROM alpine:latest
 
@@ -23,5 +23,5 @@ EXPOSE 8000
 EXPOSE 9000
 VOLUME /data/conf
 
-#CMD ["./server", "-conf", "/data/conf"]
-#CMD ["./server"]
+#CMD ["./configs", "-conf", "/data/conf"]
+#CMD ["./configs"]

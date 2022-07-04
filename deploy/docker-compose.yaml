@@ -13,8 +13,8 @@ services:
     hostname: user-service
     depends_on:
       - user-db
-#    command: ["sh","wait-for-it.sh", "user-db:3306", "--", "./server" ]
-    command: ["./server"]
+    #    command: ["sh","wait-for-it.sh", "user-db:3306", "--", "./configs" ]
+    command: [ "./configs" ]
 
   user-db:
     image: mysql:5.7

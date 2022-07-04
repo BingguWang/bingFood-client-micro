@@ -1,10 +1,9 @@
 GOPATH:=$(shell go env GOPATH)
 VERSION=$(shell git describe --tags --always)
-#APP_RELATIVE_PATH=$(shell a=`basename $$PWD` && cd .. && b=`basename $$PWD` && echo $$b/$$a)
-APP_RELATIVE_PATH=$(shell a=`basename $$PWD` && cd ./app && b=`basename $$PWD` && echo $$a/$$b)
-#INTERNAL_PROTO_FILES=$(shell find internal -name *.proto)
-INTERNAL_PROTO_FILES=$(shell find ./app/user -name *.proto)
+APP_RELATIVE_PATH=$(shell a=`basename $$PWD` && cd .. && b=`basename $$PWD` && echo $$b/$$a)
+INTERNAL_PROTO_FILES=$(shell find internal -name *.proto)
 API_PROTO_FILES=$(shell cd ../../../api/$(APP_RELATIVE_PATH) && find . -name *.proto)
+#API_PROTO_FILES=$(shell find ./api/ -name *.proto)
 KRATOS_VERSION=$(shell go mod graph |grep go-kratos/kratos/v2 |head -n 1 |awk -F '@' '{print $$2}')
 KRATOS=$(GOPATH)/pkg/mod/github.com/go-kratos/kratos/v2@$(KRATOS_VERSION)
 APP_NAME=$(shell echo $(APP_RELATIVE_PATH) | sed -En "s/\//-/p")
@@ -46,6 +45,8 @@ errors:
            --go-errors_out=paths=source_relative:. \
            $(API_PROTO_FILES)
 
+
+
 .PHONY: swagger
 # generate swagger
 swagger:
@@ -80,7 +81,7 @@ test:
 
 .PHONY: run
 run:
-	cd cmd/server/ && go run .
+	cd cmd/ && go run .
 
 .PHONY: ent
 ent:
@@ -94,19 +95,27 @@ docker:
 .PHONY: config
 # generate internal proto
 config:
-	protoc --proto_path=./app/user/service/internal \
-	       --proto_path=./third_party \
- 	       --go_out=paths=source_relative:./app/user/service/internal \
+	protoc --proto_path=./internal \
+	       --proto_path=../../../third_party \
+ 	       --go_out=paths=source_relative:./internal \
 	       $(INTERNAL_PROTO_FILES)
 
 .PHONY: wire
 # generate wire
 wire:
-	cd ./app/user/service/cmd/server && wire
+	cd ./cmd && wire
 
 .PHONY: api
 # generate api proto
-api: grpc http swagger errors
+api:
+	cd ../../../api/$(APP_RELATIVE_PATH) && protoc --proto_path=. \
+	       --proto_path=../../../third_party \
+ 	       --go_out=paths=source_relative:. \
+ 	       --go-http_out=paths=source_relative:. \
+ 	       --go-grpc_out=paths=source_relative:. \
+	       --openapi_out=fq_schema_naming=true,default_response=false:. \
+		        $(API_PROTO_FILES)
+
 
 .PHONY: all
 # generate all

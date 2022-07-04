@@ -1,0 +1,85 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: BingfoodService API
+    version: 0.0.1
+paths:
+    /user/login:
+        post:
+            tags:
+                - BingfoodService
+            operationId: BingfoodService_LoginOrRegister
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/user.v1.UserLoginOrRegisterRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user.v1.UserLoginOrRegisterReply'
+    /user/setPwd:
+        post:
+            tags:
+                - BingfoodService
+            operationId: BingfoodService_SetUserPassword
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/user.v1.SetUserPasswordRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user.v1.SetUserPasswordReply'
+components:
+    schemas:
+        user.v1.SetUserPasswordReply:
+            type: object
+            properties:
+                retCode:
+                    type: integer
+                    format: uint32
+                retMsg:
+                    type: string
+        user.v1.SetUserPasswordRequest:
+            type: object
+            properties:
+                userMobile:
+                    type: string
+                password:
+                    type: string
+        user.v1.UserLoginOrRegisterReply:
+            type: object
+            properties:
+                retCode:
+                    type: integer
+                    format: uint32
+                retMsg:
+                    type: string
+                token:
+                    type: string
+        user.v1.UserLoginOrRegisterRequest:
+            type: object
+            properties:
+                userMobile:
+                    type: string
+                loginType:
+                    type: integer
+                    format: uint32
+                validCode:
+                    type: string
+                password:
+                    type: string
+tags:
+    - name: BingfoodService

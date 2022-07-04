@@ -9,16 +9,17 @@ option go_package = "api/order/service/v1;v1";
 
 service OrderService {
   rpc SettleOrder (SettleOrderRequest) returns (SettleOrderReply) {
-    option (google.api.http) = {
-      post: "/order/toSettle",
-      body: "*",
-    };
+    //    option (google.api.http) = {
+    //      post: "/order/toSettle",
+    //      body: "*",
+    //    };
   }
-
 }
 
 message SettleOrderRequest  {
   repeated uint64 cartIds = 1;
+  uint64 userId = 2;
+  string userMobile = 3;
 }
 
 message SettleOrderReply {
@@ -40,7 +41,7 @@ message SettleOrderReply {
     int32 DiscountAmount = 10;
     int32 FinalAmount = 11;
     uint32 DeliverType = 12;
-    OrderItem OrderItems = 13;
+    repeated OrderItem OrderItems = 13;
   }
 
 }

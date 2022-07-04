@@ -12,6 +12,7 @@ import (
 var settleTimout = 10 * time.Minute
 
 func (o *orderRepo) RedisSetKV(ctx context.Context, key, val string) (string, error) {
+    log.Infof("insert to redis , key :%v, val :%v", key, val)
     retData, err := o.data.redisCli.Set(ctx, key, val, settleTimout).Result() // 停留在结算页面没操作超过10分钟结算就作废
     if err != nil {
         return "", err

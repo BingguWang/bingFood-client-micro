@@ -1,13 +1,13 @@
 syntax = "proto3";
 
-package user.v1;
+package user.service.v1;
 
 import "google/api/annotations.proto";
 
-option go_package = "github.com/go-kratos/user-client-micro/api/user/v1;v1";
+option go_package = "api/user/service/v1;v1";
 
 
-service BingfoodService {
+service UserService {
   rpc LoginOrRegister (UserLoginOrRegisterRequest) returns (UserLoginOrRegisterReply) {
     option (google.api.http) = {
       post: "/user/login",

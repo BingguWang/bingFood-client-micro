@@ -1,0 +1,147 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: BingfoodService API
+    version: 0.0.1
+paths:
+    /order/settle:
+        post:
+            tags:
+                - BingfoodService
+            operationId: BingfoodService_OrderSettle
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bingfood.service.v1.SettleOrderRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bingfood.service.v1.SettleOrderReply'
+components:
+    schemas:
+        bingfood.service.v1.OrderItem:
+            type: object
+            properties:
+                OrderItemId:
+                    type: integer
+                    format: uint64
+                OrderNumber:
+                    type: string
+                UserId:
+                    type: integer
+                    format: uint64
+                Score:
+                    type: integer
+                    format: int32
+                ShopId:
+                    type: integer
+                    format: uint64
+                ProdId:
+                    type: integer
+                    format: uint64
+                ProdName:
+                    type: string
+                ProdNums:
+                    type: integer
+                    format: uint32
+                Pic:
+                    type: string
+                ProdAmount:
+                    type: integer
+                    format: uint32
+                SkuId:
+                    type: integer
+                    format: uint32
+                SkuName:
+                    type: string
+                Price:
+                    type: integer
+                    format: int32
+                oriPrice:
+                    type: integer
+                    format: int32
+                PropId:
+                    type: integer
+                    format: uint64
+                PropName:
+                    type: string
+                IsCommented:
+                    type: integer
+                    format: uint32
+                IsGood:
+                    type: integer
+                    format: uint32
+                Comment:
+                    type: string
+        bingfood.service.v1.SettleOrderReply:
+            type: object
+            properties:
+                retCode:
+                    type: integer
+                    format: uint32
+                retMsg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/bingfood.service.v1.SettleOrderReply_Data'
+        bingfood.service.v1.SettleOrderReply_Data:
+            type: object
+            properties:
+                ShopId:
+                    type: integer
+                    format: uint64
+                UserId:
+                    type: integer
+                    format: uint64
+                UserMobile:
+                    type: string
+                ReceiverMobile:
+                    type: string
+                ProdName:
+                    type: string
+                ProdNums:
+                    type: integer
+                    format: int32
+                PackingAmount:
+                    type: integer
+                    format: int32
+                DeliverAmount:
+                    type: integer
+                    format: int32
+                ProdAmount:
+                    type: integer
+                    format: int32
+                DiscountAmount:
+                    type: integer
+                    format: int32
+                FinalAmount:
+                    type: integer
+                    format: int32
+                DeliverType:
+                    type: integer
+                    format: uint32
+                OrderItems:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bingfood.service.v1.OrderItem'
+        bingfood.service.v1.SettleOrderRequest:
+            type: object
+            properties:
+                cartIds:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint64
+                userId:
+                    type: integer
+                    format: uint64
+                userMobile:
+                    type: string
+tags:
+    - name: BingfoodService

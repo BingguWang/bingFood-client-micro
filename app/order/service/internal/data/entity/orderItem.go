@@ -4,7 +4,7 @@ import "time"
 
 type OrderItem struct {
     OrderItemId uint64 `gorm:"column:order_item_id;primaryKey"` // 订单项id
-    OrderNumber string // 订单号
+    OrderNumber string `copier:"must"`                          // 订单号
 
     UserId uint64 // 用户
     Score  int    // 此订单项拥有的积分

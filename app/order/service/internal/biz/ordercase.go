@@ -5,16 +5,10 @@ import (
     "fmt"
     v12 "github.com/go-kratos/bingfood-client-micro/api/cart/service/v1"
     v1 "github.com/go-kratos/bingfood-client-micro/api/order/service/v1"
-    "github.com/go-kratos/bingfood-client-micro/app/order/service/internal/conf"
     "github.com/go-kratos/bingfood-client-micro/app/order/service/internal/data/entity"
     "github.com/go-kratos/bingfood-client-micro/app/order/service/internal/utils"
-    "github.com/go-kratos/kratos/contrib/registry/etcd/v2"
     "github.com/go-kratos/kratos/v2/log"
-    "github.com/go-kratos/kratos/v2/middleware/recovery"
-    "github.com/go-kratos/kratos/v2/registry"
-    "github.com/go-kratos/kratos/v2/transport/grpc"
     "github.com/jinzhu/copier"
-    clientv3 "go.etcd.io/etcd/client/v3"
     "strconv"
 )
 
@@ -39,45 +33,17 @@ type OrderRepo interface {
     AddSettleToRedis(context.Context, string, string) (string, error)
 }
 
-func NewDiscovery(cf *conf.Registry) registry.Discovery {
-    client, err := clientv3.New(clientv3.Config{
-        Endpoints:   cf.Etcd.Endpoints,
-        DialTimeout: cf.Etcd.DialTimeout.AsDuration(),
-    })
-    fmt.Println(cf.Etcd.Endpoints)
-    if err != nil {
-        panic(err)
-    }
-    r := etcd.New(client)
-    return r
-}
-
-func NewCartServiceClient(r registry.Discovery) v12.CartServiceClient {
-    conn, err := grpc.DialInsecure(
-        context.Background(),
-        grpc.WithEndpoint("discovery:///bingfood.cart.service"),
-        grpc.WithDiscovery(r),
-        grpc.WithMiddleware(
-            recovery.Recovery(),
-        ),
-    )
-    if err != nil {
-        panic(err)
-    }
-    c := v12.NewCartServiceClient(conn)
-    return c
-}
-
-func (oc *Ordercase) SettleOrderHandler(ctx context.Context, req *v1.SettleOrderRequest) error {
+func (oc *Ordercase) SettleOrderHandler(ctx context.Context, req *v1.SettleOrderRequest) (ret interface{}, err error) {
     oc.log.WithContext(ctx).Infof("SettleOrderHandler args: %v", utils.ToJsonString(req))
 
     if req.CartIds == nil || len(req.CartIds) == 0 {
-        return v1.ErrorInvalidArgument("传入的购物车id不能为空")
+        return nil, v1.ErrorInvalidArgument("传入的购物车id不能为空")
     }
-    if _, err := oc.SettleOrder(ctx, req); err != nil {
-        return err
+    ret, err = oc.SettleOrder(ctx, req)
+    if err != nil {
+        return nil, err
     }
-    return nil
+    return ret, nil
 }
 
 func (oc *Ordercase) SettleOrder(ctx context.Context, req *v1.SettleOrderRequest) (res interface{}, err error) {
@@ -90,6 +56,7 @@ func (oc *Ordercase) SettleOrder(ctx context.Context, req *v1.SettleOrderRequest
         PageSize: 10,
     }}
     reply, err := cartServiceClient.GetCartByCartIds(ctx, rq)
+    log.Infof("调用服务bingfood.cart.service/GetCartByCartIds, 得到结果: %v ", utils.ToJsonString(reply))
     if err != nil {
         return nil, err
     }
@@ -103,7 +70,7 @@ func (oc *Ordercase) SettleOrder(ctx context.Context, req *v1.SettleOrderRequest
         discountTotal   int32 // 总共优惠的金额
         deliverFeeTotal int32 // 配送费
         redPacket       int32 // 红包
-        itemList        []entity.OrderItem
+        itemList        []*entity.OrderItem
         prodNums        int32 // 总商品个数
         shopId          uint64
         prodName        string // 商品名，用分号连接
@@ -131,7 +98,7 @@ func (oc *Ordercase) SettleOrder(ctx context.Context, req *v1.SettleOrderRequest
         packingFeeTotal += sku.PackingFee
 
         prodNums += v.ProdNums
-        itemList = append(itemList, item)
+        itemList = append(itemList, &item)
         shopId = v.ShopId
         prodName += sku.ProdName + sku.SkuName + ";"
     }
@@ -142,35 +109,30 @@ func (oc *Ordercase) SettleOrder(ctx context.Context, req *v1.SettleOrderRequest
     discountTotal = (oriPriceTotal - priceTotal) + redPacket
     finalTotal = packingFeeTotal + priceTotal + deliverFeeTotal - discountTotal
 
-    claims := ctx.Value("claims")
-    userClaims := claims.(*utils.UserClaims)
-    //fmt.Println(itemList)
-
-    var items *v1.OrderItem
-    copier.CopyWithOption(items, itemList, copier.Option{
-        IgnoreEmpty: true,
+    var items []*v1.OrderItem
+    copier.CopyWithOption(&items, &itemList, copier.Option{
+        IgnoreEmpty: false,
         DeepCopy:    true,
     })
 
-    retData := v1.SettleOrderReply_Data{
+    retData := &v1.SettleOrderReply_Data{
         ShopId:         shopId,
-        UserMobile:     userClaims.UserMobile,
+        UserMobile:     req.UserMobile,
         ProdNums:       prodNums,
         PackingAmount:  packingFeeTotal,
         DeliverAmount:  deliverFeeTotal,
         ProdAmount:     priceTotal,
         DiscountAmount: discountTotal,
         FinalAmount:    finalTotal,
-        OrderItems:     items,
-        ProdName:       prodName,
+        //OrderItems:     items,
+        ProdName: prodName,
     }
-    fmt.Println(utils.ToJsonString(retData))
 
     // 返回的结算内容存到redis里,后面的提交订单时不需要前端再传过来了,提交订单的时候删掉
-    key := "settledOrder_" + strconv.FormatUint(shopId, 10) + "_" + userClaims.UserMobile // TODO 规范,常数写到其他地方去
-    oc.repo.AddSettleToRedis(ctx, key, utils.ToJsonString(retData))
-    if err != nil {
-        return
+    key := "settledOrder_" + strconv.FormatUint(shopId, 10) + "_" + req.UserMobile // TODO 规范,常数写到其他地方去
+    if _, err = oc.repo.AddSettleToRedis(ctx, key, utils.ToJsonString(retData)); err != nil {
+        return nil, err
     }
+    fmt.Println(utils.ToJsonString(retData))
     return retData, nil
 }

@@ -27,9 +27,9 @@ func wireApp(confServer *conf.Server, confData *conf.Data, jwt *conf.JWT, logger
 	}
 	userRepo := data.NewUserRepo(dataData, logger)
 	userUsecase := user.NewUserUsecase(userRepo, logger)
-	bingfoodServiceImpl := service.NewBingfoodService(userUsecase)
-	httpServer := server.NewHTTPServer(confServer, jwt, bingfoodServiceImpl, logger)
-	grpcServer := server.NewGRPCServer(confServer, bingfoodServiceImpl, logger)
+	userServiceImpl := service.NewBingfoodService(userUsecase)
+	httpServer := server.NewHTTPServer(confServer, jwt, userServiceImpl, logger)
+	grpcServer := server.NewGRPCServer(confServer, userServiceImpl, logger)
 	registrar := server.NewRegistrar(registry)
 	app := newApp(logger, httpServer, grpcServer, registrar)
 	return app, func() {

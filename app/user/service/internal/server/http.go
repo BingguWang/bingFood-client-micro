@@ -27,7 +27,7 @@ func NewSkipAuthMatcher() selector.MatchFunc {
 }
 
 // NewHTTPServer new a HTTP configs.
-func NewHTTPServer(c *conf.Server, jwtc *conf.JWT, svc *service.BingfoodServiceImpl, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server, jwtc *conf.JWT, svc *service.UserServiceImpl, logger log.Logger) *http.Server {
     var opts = []http.ServerOption{
 
         http.Middleware(
@@ -56,9 +56,9 @@ func NewHTTPServer(c *conf.Server, jwtc *conf.JWT, svc *service.BingfoodServiceI
         opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
     }
     srv := http.NewServer(opts...)
-    v1.RegisterBingfoodServiceHTTPServer(srv, svc)
+    v1.RegisterUserServiceHTTPServer(srv, svc)
     return srv
 }
-func InitGlobalValue(c *conf.Server, jwtc *conf.JWT, svc *service.BingfoodServiceImpl) {
+func InitGlobalValue(c *conf.Server, jwtc *conf.JWT, svc *service.UserServiceImpl) {
     global.JWT_SECRET = []byte(jwtc.Secret)
 }

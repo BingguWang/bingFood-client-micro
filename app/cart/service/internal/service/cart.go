@@ -4,7 +4,9 @@ import (
     "context"
     v1 "github.com/go-kratos/bingfood-client-micro/api/cart/service/v1"
     "github.com/go-kratos/bingfood-client-micro/app/cart/service/internal/biz"
+    "github.com/go-kratos/bingfood-client-micro/app/cart/service/internal/utils"
     "github.com/jinzhu/copier"
+    "github.com/prometheus/common/log"
 )
 
 type CartServiceImpl struct {
@@ -51,6 +53,7 @@ func (s *CartServiceImpl) GetCartByCond(ctx context.Context, in *v1.GetCartByCon
 
 func (s *CartServiceImpl) GetCartByCartIds(ctx context.Context, in *v1.GetCartByCartIdsRequest) (*v1.GetCartByCartIdsReply, error) {
     list, total, err := s.cc.GetCartByIdsHandler(ctx, in)
+    log.Info("GetCartByIdsHandler ret is : %v", utils.ToJsonString(list))
     if err != nil {
         return &v1.GetCartByCartIdsReply{
             RetMsg: err.Error(),
@@ -58,13 +61,14 @@ func (s *CartServiceImpl) GetCartByCartIds(ctx context.Context, in *v1.GetCartBy
         }, err
     }
     var ret []*v1.Cart
-    copier.CopyWithOption(ret, list, copier.Option{
-        IgnoreEmpty: true,
-        DeepCopy:    true,
+    copier.CopyWithOption(&ret, &list, copier.Option{
+        IgnoreEmpty: false,
     })
+    log.Info("000000000000000 ret is : %v", utils.ToJsonString(ret))
+
     return &v1.GetCartByCartIdsReply{
         RetCode: 200,
-        RetMsg:  "成功获取购物车 : " + "userMOBILE from ctx",
+        RetMsg:  "成功获取购物车 ",
         Data: &v1.CartPagination{
             List:     ret,
             Total:    total,

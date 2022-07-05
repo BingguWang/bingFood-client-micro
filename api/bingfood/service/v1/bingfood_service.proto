@@ -4,6 +4,7 @@ package bingfood.service.v1;
 
 import "google/api/annotations.proto";
 import "v1/bingfood_order_service.proto";
+import "v1/bingfood_cart_service.proto";
 
 option go_package = "api/bingfood/service/v1;v1";
 
@@ -12,6 +13,13 @@ service BingfoodService {
   rpc OrderSettle (bingfood.service.v1.SettleOrderRequest) returns (bingfood.service.v1.SettleOrderReply) {
     option (google.api.http) = {
       post: "/order/settle",
+      body: "*",
+    };
+  }
+
+  rpc AddCartItem (bingfood.service.v1.AddCartItemRequest) returns (bingfood.service.v1.AddCartItemReply) {
+    option (google.api.http) = {
+      post: "/cart/addItem",
       body: "*",
     };
   }

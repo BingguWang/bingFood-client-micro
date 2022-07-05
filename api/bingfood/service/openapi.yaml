@@ -6,6 +6,24 @@ info:
     title: BingfoodService API
     version: 0.0.1
 paths:
+    /cart/addItem:
+        post:
+            tags:
+                - BingfoodService
+            operationId: BingfoodService_AddCartItem
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bingfood.service.v1.AddCartItemRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bingfood.service.v1.AddCartItemReply'
     /order/settle:
         post:
             tags:
@@ -26,59 +44,85 @@ paths:
                                 $ref: '#/components/schemas/bingfood.service.v1.SettleOrderReply'
 components:
     schemas:
+        bingfood.service.v1.AddCartItemReply:
+            type: object
+            properties:
+                retCode:
+                    type: integer
+                    format: uint32
+                retMsg:
+                    type: string
+        bingfood.service.v1.AddCartItemRequest:
+            type: object
+            properties:
+                cartId:
+                    type: integer
+                    format: uint64
+                shopId:
+                    type: integer
+                    format: uint64
+                userId:
+                    type: integer
+                    format: uint64
+                skuId:
+                    type: integer
+                    format: uint64
+                prodNums:
+                    type: integer
+                    format: int32
         bingfood.service.v1.OrderItem:
             type: object
             properties:
-                OrderItemId:
+                orderItemId:
                     type: integer
                     format: uint64
-                OrderNumber:
+                orderNumber:
                     type: string
-                UserId:
+                userId:
                     type: integer
                     format: uint64
-                Score:
+                score:
                     type: integer
                     format: int32
-                ShopId:
+                shopId:
                     type: integer
                     format: uint64
-                ProdId:
+                prodId:
                     type: integer
                     format: uint64
-                ProdName:
+                prodName:
                     type: string
-                ProdNums:
+                prodNums:
                     type: integer
                     format: uint32
-                Pic:
+                pic:
                     type: string
-                ProdAmount:
+                prodAmount:
                     type: integer
                     format: uint32
-                SkuId:
+                skuId:
                     type: integer
                     format: uint32
-                SkuName:
+                skuName:
                     type: string
-                Price:
+                price:
                     type: integer
                     format: int32
                 oriPrice:
                     type: integer
                     format: int32
-                PropId:
+                propId:
                     type: integer
                     format: uint64
-                PropName:
+                propName:
                     type: string
-                IsCommented:
+                isCommented:
                     type: integer
                     format: uint32
-                IsGood:
+                isGood:
                     type: integer
                     format: uint32
-                Comment:
+                comment:
                     type: string
         bingfood.service.v1.SettleOrderReply:
             type: object
@@ -93,40 +137,40 @@ components:
         bingfood.service.v1.SettleOrderReply_Data:
             type: object
             properties:
-                ShopId:
+                shopId:
                     type: integer
                     format: uint64
-                UserId:
+                userId:
                     type: integer
                     format: uint64
-                UserMobile:
+                userMobile:
                     type: string
-                ReceiverMobile:
+                receiverMobile:
                     type: string
-                ProdName:
+                prodName:
                     type: string
-                ProdNums:
+                prodNums:
                     type: integer
                     format: int32
-                PackingAmount:
+                packingAmount:
                     type: integer
                     format: int32
-                DeliverAmount:
+                deliverAmount:
                     type: integer
                     format: int32
-                ProdAmount:
+                prodAmount:
                     type: integer
                     format: int32
-                DiscountAmount:
+                discountAmount:
                     type: integer
                     format: int32
-                FinalAmount:
+                finalAmount:
                     type: integer
                     format: int32
-                DeliverType:
+                deliverType:
                     type: integer
                     format: uint32
-                OrderItems:
+                orderItems:
                     type: array
                     items:
                         $ref: '#/components/schemas/bingfood.service.v1.OrderItem'

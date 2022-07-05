@@ -17,15 +17,18 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationBingfoodServiceAddCartItem = "/bingfood.service.v1.BingfoodService/AddCartItem"
 const OperationBingfoodServiceOrderSettle = "/bingfood.service.v1.BingfoodService/OrderSettle"
 
 type BingfoodServiceHTTPServer interface {
+	AddCartItem(context.Context, *AddCartItemRequest) (*AddCartItemReply, error)
 	OrderSettle(context.Context, *SettleOrderRequest) (*SettleOrderReply, error)
 }
 
 func RegisterBingfoodServiceHTTPServer(s *http.Server, srv BingfoodServiceHTTPServer) {
 	r := s.Route("/")
 	r.POST("/order/settle", _BingfoodService_OrderSettle0_HTTP_Handler(srv))
+	r.POST("/cart/addItem", _BingfoodService_AddCartItem0_HTTP_Handler(srv))
 }
 
 func _BingfoodService_OrderSettle0_HTTP_Handler(srv BingfoodServiceHTTPServer) func(ctx http.Context) error {
@@ -47,7 +50,27 @@ func _BingfoodService_OrderSettle0_HTTP_Handler(srv BingfoodServiceHTTPServer) f
 	}
 }
 
+func _BingfoodService_AddCartItem0_HTTP_Handler(srv BingfoodServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AddCartItemRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBingfoodServiceAddCartItem)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AddCartItem(ctx, req.(*AddCartItemRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AddCartItemReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BingfoodServiceHTTPClient interface {
+	AddCartItem(ctx context.Context, req *AddCartItemRequest, opts ...http.CallOption) (rsp *AddCartItemReply, err error)
 	OrderSettle(ctx context.Context, req *SettleOrderRequest, opts ...http.CallOption) (rsp *SettleOrderReply, err error)
 }
 
@@ -57,6 +80,19 @@ type BingfoodServiceHTTPClientImpl struct {
 
 func NewBingfoodServiceHTTPClient(client *http.Client) BingfoodServiceHTTPClient {
 	return &BingfoodServiceHTTPClientImpl{client}
+}
+
+func (c *BingfoodServiceHTTPClientImpl) AddCartItem(ctx context.Context, in *AddCartItemRequest, opts ...http.CallOption) (*AddCartItemReply, error) {
+	var out AddCartItemReply
+	pattern := "/cart/addItem"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBingfoodServiceAddCartItem))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
 }
 
 func (c *BingfoodServiceHTTPClientImpl) OrderSettle(ctx context.Context, in *SettleOrderRequest, opts ...http.CallOption) (*SettleOrderReply, error) {

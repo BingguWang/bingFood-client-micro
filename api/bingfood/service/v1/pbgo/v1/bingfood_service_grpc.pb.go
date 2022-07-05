@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BingfoodServiceClient interface {
 	OrderSettle(ctx context.Context, in *SettleOrderRequest, opts ...grpc.CallOption) (*SettleOrderReply, error)
+	AddCartItem(ctx context.Context, in *AddCartItemRequest, opts ...grpc.CallOption) (*AddCartItemReply, error)
 }
 
 type bingfoodServiceClient struct {
@@ -42,11 +43,21 @@ func (c *bingfoodServiceClient) OrderSettle(ctx context.Context, in *SettleOrder
 	return out, nil
 }
 
+func (c *bingfoodServiceClient) AddCartItem(ctx context.Context, in *AddCartItemRequest, opts ...grpc.CallOption) (*AddCartItemReply, error) {
+	out := new(AddCartItemReply)
+	err := c.cc.Invoke(ctx, "/bingfood.service.v1.BingfoodService/AddCartItem", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BingfoodServiceServer is the server API for BingfoodService service.
 // All implementations must embed UnimplementedBingfoodServiceServer
 // for forward compatibility
 type BingfoodServiceServer interface {
 	OrderSettle(context.Context, *SettleOrderRequest) (*SettleOrderReply, error)
+	AddCartItem(context.Context, *AddCartItemRequest) (*AddCartItemReply, error)
 	mustEmbedUnimplementedBingfoodServiceServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedBingfoodServiceServer struct {
 
 func (UnimplementedBingfoodServiceServer) OrderSettle(context.Context, *SettleOrderRequest) (*SettleOrderReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OrderSettle not implemented")
+}
+func (UnimplementedBingfoodServiceServer) AddCartItem(context.Context, *AddCartItemRequest) (*AddCartItemReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddCartItem not implemented")
 }
 func (UnimplementedBingfoodServiceServer) mustEmbedUnimplementedBingfoodServiceServer() {}
 
@@ -88,6 +102,24 @@ func _BingfoodService_OrderSettle_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BingfoodService_AddCartItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddCartItemRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BingfoodServiceServer).AddCartItem(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bingfood.service.v1.BingfoodService/AddCartItem",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BingfoodServiceServer).AddCartItem(ctx, req.(*AddCartItemRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BingfoodService_ServiceDesc is the grpc.ServiceDesc for BingfoodService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +130,10 @@ var BingfoodService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "OrderSettle",
 			Handler:    _BingfoodService_OrderSettle_Handler,
+		},
+		{
+			MethodName: "AddCartItem",
+			Handler:    _BingfoodService_AddCartItem_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

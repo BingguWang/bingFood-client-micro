@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package bingfood.service.v1;
 
-import "google/api/annotations.proto";
 option go_package = "api/bingfood/service/v1;v1";
 
 
@@ -28,43 +27,43 @@ message SettleOrderReply {
 
   Data data = 4;
   message Data{
-    uint64 ShopId = 1;
-    uint64 UserId = 2;
-    string UserMobile = 3;
-    string ReceiverMobile = 4;
-    string ProdName = 5;
-    int32 ProdNums = 6;
-    int32 PackingAmount = 7;
-    int32 DeliverAmount = 8;
-    int32 ProdAmount = 9;
-    int32 DiscountAmount = 10;
-    int32 FinalAmount = 11;
-    uint32 DeliverType = 12;
-    repeated OrderItem OrderItems = 13;
+    uint64 shopId = 1;
+    uint64 userId = 2;
+    string userMobile = 3;
+    string receiverMobile = 4;
+    string prodName = 5;
+    int32 prodNums = 6;
+    int32 packingAmount = 7;
+    int32 deliverAmount = 8;
+    int32 prodAmount = 9;
+    int32 discountAmount = 10;
+    int32 finalAmount = 11;
+    uint32 deliverType = 12;
+    repeated OrderItem orderItems = 13;
   }
 
 }
 
 message OrderItem {
-  uint64 OrderItemId = 1;
-  string OrderNumber = 2;
-  uint64 UserId = 3;
-  int32 Score = 4;
-  uint64 ShopId = 5;
-  uint64 ProdId = 6;
-  string ProdName = 7;
-  uint32 ProdNums = 8;
-  string Pic = 9;
-  uint32 ProdAmount = 10;
-  uint32 SkuId = 11;
-  string SkuName = 12;
-  int32 Price = 13;
+  uint64 orderItemId = 1;
+  string orderNumber = 2;
+  uint64 userId = 3;
+  int32 score = 4;
+  uint64 shopId = 5;
+  uint64 prodId = 6;
+  string prodName = 7;
+  uint32 prodNums = 8;
+  string pic = 9;
+  uint32 prodAmount = 10;
+  uint32 skuId = 11;
+  string skuName = 12;
+  int32 price = 13;
   int32 oriPrice = 14;
-  uint64 PropId = 15;
-  string PropName = 16;
-  uint32 IsCommented = 17;
-  uint32 IsGood = 18;
-  string Comment = 19;
+  uint64 propId = 15;
+  string propName = 16;
+  uint32 isCommented = 17;
+  uint32 isGood = 18;
+  string comment = 19;
 
 }
 

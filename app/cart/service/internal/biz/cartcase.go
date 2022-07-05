@@ -30,7 +30,7 @@ func NewCartUseCase(repo CartRepo, logger log.Logger) *CartUseCase {
 }
 
 func (uc *CartUseCase) AddCartItem(ctx context.Context, req *v1.AddCartItemRequest) error {
-    uc.log.WithContext(ctx).Infof("LoginOrRegisterUser args: %v", utils.ToJsonString(req))
+    uc.log.WithContext(ctx).Infof("AddCartItem args: %v", utils.ToJsonString(req))
 
     if req.ProdNums <= 0 {
         // TODO _ = bs.DeleteBasketRecord(reqParam)

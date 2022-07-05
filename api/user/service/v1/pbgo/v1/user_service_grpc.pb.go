@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.19.1
-// source: v1/user_service.proto
+// source: v1/bingfood_user_service.proto
 
 package v1
 
@@ -137,5 +137,5 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "v1/user_service.proto",
+	Metadata: "v1/bingfood_user_service.proto",
 }

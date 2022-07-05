@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.28.0
 // 	protoc        v3.19.1
-// source: v1/user_service.proto
+// source: v1/bingfood_user_service.proto
 
 package v1
 

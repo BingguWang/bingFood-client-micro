@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type BingfoodServiceClient interface {
 	OrderSettle(ctx context.Context, in *SettleOrderRequest, opts ...grpc.CallOption) (*SettleOrderReply, error)
 	AddCartItem(ctx context.Context, in *AddCartItemRequest, opts ...grpc.CallOption) (*AddCartItemReply, error)
+	UserLoginOrRegister(ctx context.Context, in *UserLoginOrRegisterRequest, opts ...grpc.CallOption) (*UserLoginOrRegisterReply, error)
 }
 
 type bingfoodServiceClient struct {
@@ -52,12 +53,22 @@ func (c *bingfoodServiceClient) AddCartItem(ctx context.Context, in *AddCartItem
 	return out, nil
 }
 
+func (c *bingfoodServiceClient) UserLoginOrRegister(ctx context.Context, in *UserLoginOrRegisterRequest, opts ...grpc.CallOption) (*UserLoginOrRegisterReply, error) {
+	out := new(UserLoginOrRegisterReply)
+	err := c.cc.Invoke(ctx, "/bingfood.service.v1.BingfoodService/UserLoginOrRegister", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BingfoodServiceServer is the server API for BingfoodService service.
 // All implementations must embed UnimplementedBingfoodServiceServer
 // for forward compatibility
 type BingfoodServiceServer interface {
 	OrderSettle(context.Context, *SettleOrderRequest) (*SettleOrderReply, error)
 	AddCartItem(context.Context, *AddCartItemRequest) (*AddCartItemReply, error)
+	UserLoginOrRegister(context.Context, *UserLoginOrRegisterRequest) (*UserLoginOrRegisterReply, error)
 	mustEmbedUnimplementedBingfoodServiceServer()
 }
 
@@ -70,6 +81,9 @@ func (UnimplementedBingfoodServiceServer) OrderSettle(context.Context, *SettleOr
 }
 func (UnimplementedBingfoodServiceServer) AddCartItem(context.Context, *AddCartItemRequest) (*AddCartItemReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddCartItem not implemented")
+}
+func (UnimplementedBingfoodServiceServer) UserLoginOrRegister(context.Context, *UserLoginOrRegisterRequest) (*UserLoginOrRegisterReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserLoginOrRegister not implemented")
 }
 func (UnimplementedBingfoodServiceServer) mustEmbedUnimplementedBingfoodServiceServer() {}
 
@@ -120,6 +134,24 @@ func _BingfoodService_AddCartItem_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BingfoodService_UserLoginOrRegister_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserLoginOrRegisterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BingfoodServiceServer).UserLoginOrRegister(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bingfood.service.v1.BingfoodService/UserLoginOrRegister",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BingfoodServiceServer).UserLoginOrRegister(ctx, req.(*UserLoginOrRegisterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BingfoodService_ServiceDesc is the grpc.ServiceDesc for BingfoodService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +166,10 @@ var BingfoodService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddCartItem",
 			Handler:    _BingfoodService_AddCartItem_Handler,
+		},
+		{
+			MethodName: "UserLoginOrRegister",
+			Handler:    _BingfoodService_UserLoginOrRegister_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

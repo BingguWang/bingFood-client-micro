@@ -8,7 +8,6 @@ package main
 import (
     "github.com/go-kratos/bingfood-client-micro/app/bingfood/service/internal/biz"
     "github.com/go-kratos/bingfood-client-micro/app/bingfood/service/internal/conf"
-    "github.com/go-kratos/bingfood-client-micro/app/bingfood/service/internal/data"
     "github.com/go-kratos/bingfood-client-micro/app/bingfood/service/internal/server"
     "github.com/go-kratos/bingfood-client-micro/app/bingfood/service/internal/service"
     "github.com/go-kratos/kratos/v2"
@@ -18,5 +17,6 @@ import (
 
 // wireApp init kratos application.
 func wireApp(*conf.Server, *conf.Data, *conf.JWT, log.Logger, *conf.Registry) (*kratos.App, func(), error) {
-    panic(wire.Build(server.ProviderSet, data.ProviderSet, biz.ProviderSet, service.ProviderSet, newApp))
+    //panic(wire.Build(server.ProviderSet, data.ProviderSet, biz.ProviderSet, service.ProviderSet, newApp))
+    panic(wire.Build(server.ProviderSet, biz.ProviderSet, service.ProviderSet, newApp))
 }

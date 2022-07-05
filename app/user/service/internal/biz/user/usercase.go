@@ -2,8 +2,8 @@ package user
 
 import (
     "context"
-    v12 "github.com/go-kratos/bingfood-client-micro/api/user/service/v1/pbgo/v1"
-    utils2 "github.com/go-kratos/bingfood-client-micro/app/user/service/internal/utils"
+    v12 "github.com/BingguWang/bingfood-client-micro/api/user/service/v1/pbgo/v1"
+    utils2 "github.com/BingguWang/bingfood-client-micro/app/user/service/internal/utils"
     "github.com/go-kratos/kratos/v2/errors"
     "github.com/go-kratos/kratos/v2/log"
     "github.com/jinzhu/copier"

@@ -10,7 +10,7 @@ import (
     "os"
     "time"
 
-    "github.com/go-kratos/bingfood-client-micro/app/order/service/internal/conf"
+    "github.com/BingguWang/bingfood-client-micro/app/order/service/internal/conf"
     "github.com/go-kratos/kratos/v2/log"
 )
 

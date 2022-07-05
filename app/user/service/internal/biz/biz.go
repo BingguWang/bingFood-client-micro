@@ -1,7 +1,7 @@
 package biz
 
 import (
-    "github.com/go-kratos/bingfood-client-micro/app/user/service/internal/biz/user"
+    "github.com/BingguWang/bingfood-client-micro/app/user/service/internal/biz/user"
     "github.com/google/wire"
 )
 

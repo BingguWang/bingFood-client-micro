@@ -3,7 +3,7 @@ package main
 import (
     "flag"
     "fmt"
-    "github.com/go-kratos/bingfood-client-micro/app/cart/service/internal/conf"
+    "github.com/BingguWang/bingfood-client-micro/app/cart/service/internal/conf"
     "github.com/go-kratos/kratos/v2"
     "github.com/go-kratos/kratos/v2/config"
     "github.com/go-kratos/kratos/v2/config/file"

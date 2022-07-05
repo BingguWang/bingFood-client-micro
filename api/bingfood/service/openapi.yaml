@@ -4,7 +4,7 @@
 openapi: 3.0.3
 info:
     title: BingfoodService API
-        version: 0.0.1
+    version: 0.0.1
 paths:
     /cart/addItem:
         post:
@@ -53,13 +53,13 @@ paths:
                         schema:
                             $ref: '#/components/schemas/bingfood.service.v1.UserLoginOrRegisterRequest'
                 required: true
-                    responses:
-                        "200":
-                            description: OK
-                            content:
-                                application/json:
-                                    schema:
-                                        $ref: '#/components/schemas/bingfood.service.v1.UserLoginOrRegisterReply'
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bingfood.service.v1.UserLoginOrRegisterReply'
 components:
     schemas:
         bingfood.service.v1.AddCartItemReply:

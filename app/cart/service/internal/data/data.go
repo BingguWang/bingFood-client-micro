@@ -1,7 +1,7 @@
 package data
 
 import (
-    "github.com/go-kratos/bingfood-client-micro/app/cart/service/internal/conf"
+    "github.com/BingguWang/bingfood-client-micro/app/cart/service/internal/conf"
     "gorm.io/gorm/logger"
     "os"
     "time"

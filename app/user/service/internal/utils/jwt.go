@@ -2,7 +2,7 @@ package utils
 
 import (
     "fmt"
-	"github.com/go-kratos/bingfood-client-micro/app/user/service/global"
+    "github.com/BingguWang/bingfood-client-micro/app/user/service/global"
     "log"
     "time"
 

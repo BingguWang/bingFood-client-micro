@@ -1,7 +1,7 @@
 package entity
 
 import (
-    v1 "github.com/go-kratos/bingfood-client-micro/api/user/service/v1/pbgo/v1"
+    v1 "github.com/BingguWang/bingfood-client-micro/api/user/service/v1/pbgo/v1"
     "time"
 )
 

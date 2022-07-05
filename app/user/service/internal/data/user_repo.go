@@ -2,9 +2,9 @@ package data
 
 import (
     "context"
-    "github.com/go-kratos/bingfood-client-micro/api/user/service/v1/pbgo/v1"
-    u "github.com/go-kratos/bingfood-client-micro/app/user/service/internal/biz/user"
-    "github.com/go-kratos/bingfood-client-micro/app/user/service/internal/utils"
+    "github.com/BingguWang/bingfood-client-micro/api/user/service/v1/pbgo/v1"
+    u "github.com/BingguWang/bingfood-client-micro/app/user/service/internal/biz/user"
+    "github.com/BingguWang/bingfood-client-micro/app/user/service/internal/utils"
     "github.com/go-kratos/kratos/v2/errors"
     "github.com/go-kratos/kratos/v2/log"
     "gorm.io/gorm"

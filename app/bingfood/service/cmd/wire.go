@@ -6,10 +6,10 @@
 package main
 
 import (
-    "github.com/go-kratos/bingfood-client-micro/app/bingfood/service/internal/biz"
-    "github.com/go-kratos/bingfood-client-micro/app/bingfood/service/internal/conf"
-    "github.com/go-kratos/bingfood-client-micro/app/bingfood/service/internal/server"
-    "github.com/go-kratos/bingfood-client-micro/app/bingfood/service/internal/service"
+    "github.com/BingguWang/bingfood-client-micro/app/bingfood/service/internal/biz"
+    "github.com/BingguWang/bingfood-client-micro/app/bingfood/service/internal/conf"
+    "github.com/BingguWang/bingfood-client-micro/app/bingfood/service/internal/server"
+    "github.com/BingguWang/bingfood-client-micro/app/bingfood/service/internal/service"
     "github.com/go-kratos/kratos/v2"
     "github.com/go-kratos/kratos/v2/log"
     "github.com/google/wire"

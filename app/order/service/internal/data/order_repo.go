@@ -2,8 +2,8 @@ package data
 
 import (
     "context"
-    "github.com/go-kratos/bingfood-client-micro/app/order/service/internal/biz"
-    "github.com/go-kratos/bingfood-client-micro/app/order/service/internal/data/entity"
+    "github.com/BingguWang/bingfood-client-micro/app/order/service/internal/biz"
+    "github.com/BingguWang/bingfood-client-micro/app/order/service/internal/data/entity"
     "github.com/go-kratos/kratos/v2/log"
 )
 

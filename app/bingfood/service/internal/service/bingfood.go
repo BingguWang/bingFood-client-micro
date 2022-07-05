@@ -1,8 +1,8 @@
 package service
 
 import (
-    v1 "github.com/go-kratos/bingfood-client-micro/api/bingfood/service/v1/pbgo/v1"
-    "github.com/go-kratos/bingfood-client-micro/app/bingfood/service/internal/biz"
+    v1 "github.com/BingguWang/bingfood-client-micro/api/bingfood/service/v1/pbgo/v1"
+    "github.com/BingguWang/bingfood-client-micro/app/bingfood/service/internal/biz"
     "github.com/go-kratos/kratos/v2/log"
 )
 

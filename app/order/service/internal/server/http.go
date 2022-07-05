@@ -3,10 +3,10 @@ package server
 //
 //import (
 //    "context"
-//    v1 "github.com/go-kratos/bingfood-client-micro/api/order/service/v1"
-//    "github.com/go-kratos/bingfood-client-micro/app/order/service/internal/conf"
-//    "github.com/go-kratos/bingfood-client-micro/app/order/service/internal/service"
-//    "github.com/go-kratos/bingfood-client-micro/app/user/service/global"
+//    v1 "github.com/BingguWang/bingfood-client-micro/api/order/service/v1"
+//    "github.com/BingguWang/bingfood-client-micro/app/order/service/internal/conf"
+//    "github.com/BingguWang/bingfood-client-micro/app/order/service/internal/service"
+//    "github.com/BingguWang/bingfood-client-micro/app/user/service/global"
 //    "github.com/go-kratos/kratos/v2/log"
 //    "github.com/go-kratos/kratos/v2/middleware/selector"
 //    "github.com/go-kratos/kratos/v2/transport/http"

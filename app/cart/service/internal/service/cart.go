@@ -2,9 +2,9 @@ package service
 
 import (
     "context"
-    v1 "github.com/go-kratos/bingfood-client-micro/api/cart/service/v1/pbgo/v1"
-    "github.com/go-kratos/bingfood-client-micro/app/cart/service/internal/biz"
-    "github.com/go-kratos/bingfood-client-micro/app/cart/service/internal/utils"
+    v1 "github.com/BingguWang/bingfood-client-micro/api/cart/service/v1/pbgo/v1"
+    "github.com/BingguWang/bingfood-client-micro/app/cart/service/internal/biz"
+    "github.com/BingguWang/bingfood-client-micro/app/cart/service/internal/utils"
     "github.com/jinzhu/copier"
     "github.com/prometheus/common/log"
 )

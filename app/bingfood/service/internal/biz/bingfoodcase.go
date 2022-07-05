@@ -38,6 +38,7 @@ func (uc *BingfoodCase) SettleOrder(ctx context.Context, req *v1.SettleOrderRequ
 
     // 调用order service 结算订单
     ret, err = uc.oc.SettleOrder(valCtx, &v12.SettleOrderRequest{CartIds: req.CartIds, UserMobile: userMobile})
+    log.Infof("调用服务bingfood.order.service/SettleOrder, 得到结果: %v ", utils.ToJsonString(ret))
     if err != nil {
         return nil, err
     }

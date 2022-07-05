@@ -34,7 +34,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, jwt *conf.JWT, logger
 	cartServiceClient := biz.NewCartServiceClient(discovery)
 	ordercase := biz.NewOrdercase(orderRepo, cartServiceClient, logger)
 	orderServiceImpl := service.NewOrderService(ordercase)
-	grpcServer := server.NewGRPCServer(confServer, orderServiceImpl, logger)
+	grpcServer := server.NewGRPCServer(confServer, jwt, orderServiceImpl, logger)
 	registrar := server.NewRegistrar(registry)
 	app := newApp(logger, grpcServer, registrar)
 	return app, func() {

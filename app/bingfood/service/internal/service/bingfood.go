@@ -21,11 +21,10 @@ func NewBingfoodService(uc *biz.BingfoodCase) *BingfoodServiceImpl {
 
 func (s *BingfoodServiceImpl) OrderSettle(ctx context.Context, in *v1.SettleOrderRequest) (*v1.SettleOrderReply, error) {
     reply, err := s.cc.SettleOrder(ctx, in)
-    log.Infof(utils.ToJsonString(reply.Data))
-
     if err != nil {
         return &v1.SettleOrderReply{RetMsg: err.Error()}, err
     }
+    log.Infof(utils.ToJsonString(reply.Data))
     var data v1.SettleOrderReply_Data
     copier.CopyWithOption(&data, reply.Data, copier.Option{
         DeepCopy:    true,

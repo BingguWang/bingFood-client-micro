@@ -27,7 +27,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, jwt *conf.JWT, logger
 	}
 	bingfoodRepo := data.NewCartRepo(dataData, logger)
 	discovery := biz.NewDiscovery(registry)
-	orderServiceClient := biz.NewOrderServiceClient(discovery)
+	orderServiceClient := biz.NewOrderServiceClient(discovery, jwt)
 	bingfoodCase := biz.NewBingfoodCase(bingfoodRepo, orderServiceClient, logger)
 	bingfoodServiceImpl := service.NewBingfoodService(bingfoodCase)
 	grpcServer := server.NewGRPCServer(confServer, bingfoodServiceImpl, logger)

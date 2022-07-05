@@ -16,4 +16,4 @@ data:
     write_timeout: 0.2s
     db: 0
 jwt:
-  secret: user
+  service_secret_key: bingguWang_bingfood

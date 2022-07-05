@@ -58,5 +58,5 @@ func NewHTTPServer(c *conf.Server, jwtc *conf.JWT, svc *service.BingfoodServiceI
     return srv
 }
 func InitGlobalValue(c *conf.Server, jwtc *conf.JWT, svc *service.BingfoodServiceImpl) {
-    global.JWT_SECRET = []byte(jwtc.Secret)
+    global.JWT_SECRET = []byte(jwtc.ApiSecretKey)
 }

@@ -15,4 +15,5 @@ data:
     write_timeout: 0.2s
 
 jwt:
-  secret: user
+  api_secret_key: bingfood
+  service_secret_key: bingguWang_bingfood

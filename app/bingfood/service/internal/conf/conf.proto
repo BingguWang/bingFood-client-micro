@@ -27,7 +27,8 @@ message Server {
   GRPC grpc = 2;
 }
 message JWT{
-  string secret = 1;
+  string api_secret_key = 1;
+  string service_secret_key = 2;
 }
 message Data {
   message Database {

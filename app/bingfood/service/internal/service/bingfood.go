@@ -10,20 +10,21 @@ type BingfoodServiceImpl struct {
     v1.UnimplementedBingfoodServiceServer
     oc *biz.OrderCase
     cc *biz.CartCase
-    //ac  *biz.AuthCase
+    ac *biz.AuthCase
+
     log *log.Helper
 }
 
 func NewBingfoodService(
     oc *biz.OrderCase,
     cc *biz.CartCase,
-//ac *biz.AuthCase,
+    ac *biz.AuthCase,
     logger log.Logger,
 ) *BingfoodServiceImpl {
     return &BingfoodServiceImpl{
-        cc: cc,
-        oc: oc,
-        //ac:  ac,
+        cc:  cc,
+        oc:  oc,
+        ac:  ac,
         log: log.NewHelper(log.With(logger, "module", "service/interface")),
     }
 }

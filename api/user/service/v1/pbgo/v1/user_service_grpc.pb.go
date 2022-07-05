@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.19.1
-// source: v1/bingfood_user_service.proto
+// source: v1/user_service.proto
 
 package v1
 
@@ -22,8 +22,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
-	LoginOrRegister(ctx context.Context, in *UserLoginOrRegisterRequest, opts ...grpc.CallOption) (*UserLoginOrRegisterReply, error)
-	SetUserPassword(ctx context.Context, in *SetUserPasswordRequest, opts ...grpc.CallOption) (*SetUserPasswordReply, error)
+	GetUsersByCond(ctx context.Context, in *GetUsersByCondRequest, opts ...grpc.CallOption) (*GetUsersByCondReply, error)
+	RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*RegisterUserReply, error)
 }
 
 type userServiceClient struct {
@@ -34,18 +34,18 @@ func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
 	return &userServiceClient{cc}
 }
 
-func (c *userServiceClient) LoginOrRegister(ctx context.Context, in *UserLoginOrRegisterRequest, opts ...grpc.CallOption) (*UserLoginOrRegisterReply, error) {
-	out := new(UserLoginOrRegisterReply)
-	err := c.cc.Invoke(ctx, "/user.service.v1.UserService/LoginOrRegister", in, out, opts...)
+func (c *userServiceClient) GetUsersByCond(ctx context.Context, in *GetUsersByCondRequest, opts ...grpc.CallOption) (*GetUsersByCondReply, error) {
+	out := new(GetUsersByCondReply)
+	err := c.cc.Invoke(ctx, "/user.service.v1.UserService/GetUsersByCond", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userServiceClient) SetUserPassword(ctx context.Context, in *SetUserPasswordRequest, opts ...grpc.CallOption) (*SetUserPasswordReply, error) {
-	out := new(SetUserPasswordReply)
-	err := c.cc.Invoke(ctx, "/user.service.v1.UserService/SetUserPassword", in, out, opts...)
+func (c *userServiceClient) RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*RegisterUserReply, error) {
+	out := new(RegisterUserReply)
+	err := c.cc.Invoke(ctx, "/user.service.v1.UserService/RegisterUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -56,8 +56,8 @@ func (c *userServiceClient) SetUserPassword(ctx context.Context, in *SetUserPass
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
 type UserServiceServer interface {
-	LoginOrRegister(context.Context, *UserLoginOrRegisterRequest) (*UserLoginOrRegisterReply, error)
-	SetUserPassword(context.Context, *SetUserPasswordRequest) (*SetUserPasswordReply, error)
+	GetUsersByCond(context.Context, *GetUsersByCondRequest) (*GetUsersByCondReply, error)
+	RegisterUser(context.Context, *RegisterUserRequest) (*RegisterUserReply, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -65,11 +65,11 @@ type UserServiceServer interface {
 type UnimplementedUserServiceServer struct {
 }
 
-func (UnimplementedUserServiceServer) LoginOrRegister(context.Context, *UserLoginOrRegisterRequest) (*UserLoginOrRegisterReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method LoginOrRegister not implemented")
+func (UnimplementedUserServiceServer) GetUsersByCond(context.Context, *GetUsersByCondRequest) (*GetUsersByCondReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUsersByCond not implemented")
 }
-func (UnimplementedUserServiceServer) SetUserPassword(context.Context, *SetUserPasswordRequest) (*SetUserPasswordReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetUserPassword not implemented")
+func (UnimplementedUserServiceServer) RegisterUser(context.Context, *RegisterUserRequest) (*RegisterUserReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterUser not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -84,38 +84,38 @@ func RegisterUserServiceServer(s grpc.ServiceRegistrar, srv UserServiceServer) {
 	s.RegisterService(&UserService_ServiceDesc, srv)
 }
 
-func _UserService_LoginOrRegister_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserLoginOrRegisterRequest)
+func _UserService_GetUsersByCond_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUsersByCondRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).LoginOrRegister(ctx, in)
+		return srv.(UserServiceServer).GetUsersByCond(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.service.v1.UserService/LoginOrRegister",
+		FullMethod: "/user.service.v1.UserService/GetUsersByCond",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).LoginOrRegister(ctx, req.(*UserLoginOrRegisterRequest))
+		return srv.(UserServiceServer).GetUsersByCond(ctx, req.(*GetUsersByCondRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_SetUserPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SetUserPasswordRequest)
+func _UserService_RegisterUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).SetUserPassword(ctx, in)
+		return srv.(UserServiceServer).RegisterUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.service.v1.UserService/SetUserPassword",
+		FullMethod: "/user.service.v1.UserService/RegisterUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).SetUserPassword(ctx, req.(*SetUserPasswordRequest))
+		return srv.(UserServiceServer).RegisterUser(ctx, req.(*RegisterUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -128,14 +128,14 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*UserServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "LoginOrRegister",
-			Handler:    _UserService_LoginOrRegister_Handler,
+			MethodName: "GetUsersByCond",
+			Handler:    _UserService_GetUsersByCond_Handler,
 		},
 		{
-			MethodName: "SetUserPassword",
-			Handler:    _UserService_SetUserPassword_Handler,
+			MethodName: "RegisterUser",
+			Handler:    _UserService_RegisterUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "v1/bingfood_user_service.proto",
+	Metadata: "v1/user_service.proto",
 }

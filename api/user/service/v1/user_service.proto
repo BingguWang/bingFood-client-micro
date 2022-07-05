@@ -8,52 +8,58 @@ option go_package = "api/user/service/v1;v1";
 
 
 service UserService {
-  rpc LoginOrRegister (UserLoginOrRegisterRequest) returns (UserLoginOrRegisterReply) {
-    option (google.api.http) = {
-      post: "/user/login",
-      body: "*",
-    };
-  }
+  rpc GetUsersByCond (GetUsersByCondRequest) returns (GetUsersByCondReply) {}
 
-  rpc SetUserPassword (SetUserPasswordRequest) returns (SetUserPasswordReply)  {
-    option (google.api.http) = {
-      post: "/user/setPwd",
-      body: "*",
-    };
-  }
+  rpc RegisterUser (RegisterUserRequest) returns (RegisterUserReply) {}
 
 }
-message SetUserPasswordRequest {
+
+
+message RegisterUserRequest {
   string  userMobile = 1; // 手机号
-  string  password = 2; // 密码
+  string  password = 4; // 登录密码
 }
-message SetUserPasswordReply {
+message RegisterUserReply{
   uint32  retCode = 1;
   string  retMsg = 2;
 }
-message UserLoginOrRegisterRequest {
-  string  userMobile = 1; // 手机号
-  uint32  loginType = 2; // 登录方式 0 手机号登录 1 密码登录 2 第三方微信登录
-  string  validCode = 3; // 登录密码，账号密码登录不需要验证码
-  string  password = 4; // 1登录 2注册
+message GetUsersByCondRequest {
+  User userCond = 1;
 }
-
-message UserLoginOrRegisterReply{
+message GetUsersByCondReply {
   uint32  retCode = 1;
   string  retMsg = 2;
-  string  token = 3;
+  repeated  User userList = 3;
 }
 
-message UserDeliveryAddr  {
-  uint32  userDeliveryAddrId = 1;
-  uint64  userId = 2;
-  string  Receiver = 3;
-  uint32  ProvinceId = 4;
-  string  Province = 5;
-  uint32  CityId = 6;
-  string  City = 7;
-  uint32  AreaId = 8;
-  string  Area = 9;
-  string  Detail = 10;
 
+message User {
+  uint64 userId = 1;
+  string userMobile = 2;
+  string loginPassword = 3;
+  string userMail = 4;
+  string userWxNumber = 5;
+  string userNickName = 6;
+  string userRealName = 7;
+  string userBirthDate = 8;
+  string userRegRegion = 9;
+  string userRegIp = 10;
+  string lastLoginRegion = 11;
+  string lastLoginIp = 12;
+  uint32 userSex = 14;
+  uint32 userStatus = 15;
+  uint32 score = 18;
+}
+
+message UserDeliveryAddr {
+  int64  serDeliveryAddrId = 1;
+  uint64 userId = 2;
+  string receiver = 3;
+  int32  provinceId = 4;
+  string province = 5;
+  int32  cityId = 6;
+  string city = 7;
+  int32  areaId = 8 ;
+  string area = 9;
+  string detail = 10;
 }

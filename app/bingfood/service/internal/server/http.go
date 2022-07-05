@@ -4,9 +4,11 @@ import (
     "context"
     "github.com/go-kratos/bingfood-client-micro/api/bingfood/service/v1/pbgo/v1"
     "github.com/go-kratos/bingfood-client-micro/app/bingfood/service/internal/conf"
+    "github.com/go-kratos/bingfood-client-micro/app/bingfood/service/internal/middleware"
     "github.com/go-kratos/bingfood-client-micro/app/bingfood/service/internal/service"
     "github.com/go-kratos/bingfood-client-micro/app/user/service/global"
     "github.com/go-kratos/kratos/v2/log"
+    "github.com/go-kratos/kratos/v2/middleware/recovery"
     "github.com/go-kratos/kratos/v2/middleware/selector"
     "github.com/go-kratos/kratos/v2/transport/http"
     "github.com/gorilla/handlers"
@@ -14,7 +16,7 @@ import (
 
 func NewSkipAuthMatcher() selector.MatchFunc {
     whiteList := make(map[string]struct{})
-    whiteList["/user.v1.BingfoodService/LoginOrRegister"] = struct{}{}
+    whiteList["/bingfood.service.v1.BingfoodService/UserLoginOrRegister"] = struct{}{}
 
     return func(ctx context.Context, operation string) bool {
         if _, ok := whiteList[operation]; ok {
@@ -28,10 +30,10 @@ func NewSkipAuthMatcher() selector.MatchFunc {
 func NewHTTPServer(c *conf.Server, jwtc *conf.JWT, svc *service.BingfoodServiceImpl, logger log.Logger) *http.Server {
     var opts = []http.ServerOption{
 
-        //http.Middleware(
-        //    recovery.Recovery(),
-        //    selector.Server(middleware.AuthMiddleware()).Match(NewSkipAuthMatcher()).Build(),
-        //),
+        http.Middleware(
+            recovery.Recovery(),
+            selector.Server(middleware.AuthMiddleware()).Match(NewSkipAuthMatcher()).Build(),
+        ),
 
         // Filter在middleware之前执行
         http.Filter(handlers.CORS(

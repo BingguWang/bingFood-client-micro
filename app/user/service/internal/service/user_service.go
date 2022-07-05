@@ -1,8 +1,7 @@
 package service
 
 import (
-	"context"
-	"fmt"
+    "context"
     v12 "github.com/go-kratos/bingfood-client-micro/api/user/service/v1/pbgo/v1"
     "github.com/go-kratos/bingfood-client-micro/app/user/service/internal/biz/user"
 )
@@ -13,26 +12,21 @@ type UserServiceImpl struct {
     uc *user.UserUsecase
 }
 
-func NewBingfoodService(uc *user.UserUsecase) *UserServiceImpl {
+func NewUserServiceImpl(uc *user.UserUsecase) *UserServiceImpl {
     return &UserServiceImpl{uc: uc}
 }
 
-func (s *UserServiceImpl) LoginOrRegister(ctx context.Context, in *v12.UserLoginOrRegisterRequest) (*v12.UserLoginOrRegisterReply, error) {
-    token, err := s.uc.LoginOrRegisterUser(ctx, in)
+func (s *UserServiceImpl) GetUsersByCond(ctx context.Context, in *v12.GetUsersByCondRequest) (*v12.GetUsersByCondReply, error) {
+    users, err := s.uc.GetUsersByCondHandler(ctx, in)
     if err != nil {
-        return &v12.UserLoginOrRegisterReply{RetMsg: err.Error()}, err
+        return &v12.GetUsersByCondReply{RetMsg: err.Error()}, err
     }
-    fmt.Println(token)
-    return &v12.UserLoginOrRegisterReply{RetCode: 200, RetMsg: "login successfully : " + in.UserMobile, Token: token}, nil
+    return &v12.GetUsersByCondReply{RetCode: 200, RetMsg: "call GetUsersByCond successfully", UserList: users}, nil
 }
 
-func (s *UserServiceImpl) SetUserPassword(ctx context.Context, in *v12.SetUserPasswordRequest) (*v12.SetUserPasswordReply, error) {
-    if err := s.uc.SetPassword(ctx, in); err != nil {
-        return nil, err
+func (s *UserServiceImpl) RegisterUser(ctx context.Context, in *v12.RegisterUserRequest) (*v12.RegisterUserReply, error) {
+    if err := s.uc.RegisterUserHandler(ctx, in); err != nil {
+        return &v12.RegisterUserReply{RetMsg: err.Error()}, err
     }
-    return &v12.SetUserPasswordReply{
-        RetCode: 200,
-        RetMsg:  "用户密码修改成功",
-    }, nil
-
+    return &v12.RegisterUserReply{RetCode: 200, RetMsg: "call RegisterUserHandler successfully"}, nil
 }

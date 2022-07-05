@@ -31,7 +31,7 @@ func RegisterBingfoodServiceHTTPServer(s *http.Server, srv BingfoodServiceHTTPSe
 	r := s.Route("/")
 	r.POST("/order/settle", _BingfoodService_OrderSettle0_HTTP_Handler(srv))
 	r.POST("/cart/addItem", _BingfoodService_AddCartItem0_HTTP_Handler(srv))
-	r.POST("/user/login", _BingfoodService_UserLoginOrRegister0_HTTP_Handler(srv))
+	r.POST("/user/loginOrRegister", _BingfoodService_UserLoginOrRegister0_HTTP_Handler(srv))
 }
 
 func _BingfoodService_OrderSettle0_HTTP_Handler(srv BingfoodServiceHTTPServer) func(ctx http.Context) error {
@@ -133,7 +133,7 @@ func (c *BingfoodServiceHTTPClientImpl) OrderSettle(ctx context.Context, in *Set
 
 func (c *BingfoodServiceHTTPClientImpl) UserLoginOrRegister(ctx context.Context, in *UserLoginOrRegisterRequest, opts ...http.CallOption) (*UserLoginOrRegisterReply, error) {
 	var out UserLoginOrRegisterReply
-	pattern := "/user/login"
+	pattern := "/user/loginOrRegister"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBingfoodServiceUserLoginOrRegister))
 	opts = append(opts, http.PathTemplate(pattern))

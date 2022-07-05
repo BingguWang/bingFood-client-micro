@@ -3,8 +3,8 @@
 
 openapi: 3.0.3
 info:
-    title: ""
-    version: 0.0.1
+    title: BingfoodService API
+        version: 0.0.1
 paths:
     /cart/addItem:
         post:
@@ -42,7 +42,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bingfood.service.v1.SettleOrderReply'
-    /user/login:
+    /user/loginOrRegister:
         post:
             tags:
                 - BingfoodService
@@ -53,31 +53,13 @@ paths:
                         schema:
                             $ref: '#/components/schemas/bingfood.service.v1.UserLoginOrRegisterRequest'
                 required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/bingfood.service.v1.UserLoginOrRegisterReply'
-    /user/setPwd:
-        post:
-            tags:
-                - UserService
-            operationId: UserService_SetUserPassword
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/bingfood.service.v1.SetUserPasswordRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/bingfood.service.v1.SetUserPasswordReply'
+                    responses:
+                        "200":
+                            description: OK
+                            content:
+                                application/json:
+                                    schema:
+                                        $ref: '#/components/schemas/bingfood.service.v1.UserLoginOrRegisterReply'
 components:
     schemas:
         bingfood.service.v1.AddCartItemReply:
@@ -159,21 +141,6 @@ components:
                     type: integer
                     format: uint32
                 comment:
-                    type: string
-        bingfood.service.v1.SetUserPasswordReply:
-            type: object
-            properties:
-                retCode:
-                    type: integer
-                    format: uint32
-                retMsg:
-                    type: string
-        bingfood.service.v1.SetUserPasswordRequest:
-            type: object
-            properties:
-                userMobile:
-                    type: string
-                password:
                     type: string
         bingfood.service.v1.SettleOrderReply:
             type: object
@@ -262,4 +229,3 @@ components:
                     type: string
 tags:
     - name: BingfoodService
-    - name: UserService

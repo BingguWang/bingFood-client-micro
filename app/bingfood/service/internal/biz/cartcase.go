@@ -4,8 +4,14 @@ import (
     "context"
     v1 "github.com/go-kratos/bingfood-client-micro/api/bingfood/service/v1/pbgo/v1"
     v13 "github.com/go-kratos/bingfood-client-micro/api/cart/service/v1/pbgo/v1"
+    "github.com/go-kratos/bingfood-client-micro/app/bingfood/service/internal/conf"
     "github.com/go-kratos/bingfood-client-micro/app/bingfood/service/internal/utils"
     "github.com/go-kratos/kratos/v2/log"
+    "github.com/go-kratos/kratos/v2/middleware/auth/jwt"
+    "github.com/go-kratos/kratos/v2/middleware/recovery"
+    "github.com/go-kratos/kratos/v2/registry"
+    "github.com/go-kratos/kratos/v2/transport/grpc"
+    jwt2 "github.com/golang-jwt/jwt/v4"
     "github.com/jinzhu/copier"
 )
 
@@ -45,4 +51,23 @@ func (uc *CartCase) AddCartItem(ctx context.Context, req *v1.AddCartItemRequest)
         return nil, err
     }
     return ret, err
+}
+
+func NewCartServiceClient(r registry.Discovery, ac *conf.JWT) v13.CartServiceClient {
+    conn, err := grpc.DialInsecure(
+        context.Background(),
+        grpc.WithEndpoint("discovery:///bingfood.cart.service"),
+        grpc.WithDiscovery(r),
+        grpc.WithMiddleware(
+            recovery.Recovery(),
+            jwt.Client(func(token *jwt2.Token) (interface{}, error) {
+                return []byte(ac.ServiceSecretKey), nil
+            }, jwt.WithSigningMethod(jwt2.SigningMethodHS256)),
+        ),
+    )
+    if err != nil {
+        panic(err)
+    }
+    c := v13.NewCartServiceClient(conn)
+    return c
 }

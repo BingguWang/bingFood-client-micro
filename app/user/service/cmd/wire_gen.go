@@ -27,11 +27,10 @@ func wireApp(confServer *conf.Server, confData *conf.Data, jwt *conf.JWT, logger
 	}
 	userRepo := data.NewUserRepo(dataData, logger)
 	userUsecase := user.NewUserUsecase(userRepo, logger)
-	userServiceImpl := service.NewBingfoodService(userUsecase)
-	httpServer := server.NewHTTPServer(confServer, jwt, userServiceImpl, logger)
+	userServiceImpl := service.NewUserServiceImpl(userUsecase)
 	grpcServer := server.NewGRPCServer(confServer, userServiceImpl, logger)
 	registrar := server.NewRegistrar(registry)
-	app := newApp(logger, httpServer, grpcServer, registrar)
+	app := newApp(logger, grpcServer, registrar)
 	return app, func() {
 		cleanup()
 	}, nil

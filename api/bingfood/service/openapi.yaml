@@ -24,6 +24,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bingfood.service.v1.AddCartItemReply'
+    /cart/getDetail:
+        post:
+            tags:
+                - BingfoodService
+            operationId: BingfoodService_GetCartDetail
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bingfood.service.v1.GetCartByCondRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bingfood.service.v1.GetCartByCondReply'
     /order/settle:
         post:
             tags:
@@ -88,6 +106,100 @@ components:
                 prodNums:
                     type: integer
                     format: int32
+        bingfood.service.v1.Cart:
+            type: object
+            properties:
+                cartId:
+                    type: integer
+                    format: uint64
+                userId:
+                    type: integer
+                    format: uint64
+                shopId:
+                    type: integer
+                    format: uint64
+                skuId:
+                    type: integer
+                    format: uint64
+                prodId:
+                    type: integer
+                    format: uint64
+                prodNums:
+                    type: integer
+                    format: int32
+                sku:
+                    $ref: '#/components/schemas/bingfood.service.v1.Cart_Sku'
+        bingfood.service.v1.CartPagination:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bingfood.service.v1.Cart'
+                total:
+                    type: integer
+                    format: int64
+                page:
+                    type: integer
+                    format: int64
+                pageSize:
+                    type: integer
+                    format: int64
+        bingfood.service.v1.Cart_Sku:
+            type: object
+            properties:
+                skuId:
+                    type: integer
+                    format: uint64
+                skuName:
+                    type: string
+                prodName:
+                    type: string
+                prodId:
+                    type: integer
+                    format: uint64
+                price:
+                    type: integer
+                    format: int32
+                oriPrice:
+                    type: integer
+                    format: int32
+                packingFee:
+                    type: integer
+                    format: int32
+                shopId:
+                    type: integer
+                    format: uint32
+                pic:
+                    type: string
+                imags:
+                    type: string
+                weight:
+                    type: integer
+                    format: uint32
+                sellStatus:
+                    type: integer
+                    format: uint32
+                stock:
+                    type: integer
+                    format: uint32
+        bingfood.service.v1.GetCartByCondReply:
+            type: object
+            properties:
+                retCode:
+                    type: integer
+                    format: uint32
+                retMsg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/bingfood.service.v1.CartPagination'
+        bingfood.service.v1.GetCartByCondRequest:
+            type: object
+            properties:
+                cartCond:
+                    $ref: '#/components/schemas/bingfood.service.v1.Cart'
+                pageInfo:
+                    $ref: '#/components/schemas/bingfood.service.v1.PageInfo'
         bingfood.service.v1.OrderItem:
             type: object
             properties:
@@ -142,6 +254,15 @@ components:
                     format: uint32
                 comment:
                     type: string
+        bingfood.service.v1.PageInfo:
+            type: object
+            properties:
+                page:
+                    type: integer
+                    format: int64
+                pageSize:
+                    type: integer
+                    format: int64
         bingfood.service.v1.SettleOrderReply:
             type: object
             properties:

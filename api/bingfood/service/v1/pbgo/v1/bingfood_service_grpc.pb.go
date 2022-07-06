@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type BingfoodServiceClient interface {
 	OrderSettle(ctx context.Context, in *SettleOrderRequest, opts ...grpc.CallOption) (*SettleOrderReply, error)
 	AddCartItem(ctx context.Context, in *AddCartItemRequest, opts ...grpc.CallOption) (*AddCartItemReply, error)
+	GetCartDetail(ctx context.Context, in *GetCartByCondRequest, opts ...grpc.CallOption) (*GetCartByCondReply, error)
 	UserLoginOrRegister(ctx context.Context, in *UserLoginOrRegisterRequest, opts ...grpc.CallOption) (*UserLoginOrRegisterReply, error)
 }
 
@@ -53,6 +54,15 @@ func (c *bingfoodServiceClient) AddCartItem(ctx context.Context, in *AddCartItem
 	return out, nil
 }
 
+func (c *bingfoodServiceClient) GetCartDetail(ctx context.Context, in *GetCartByCondRequest, opts ...grpc.CallOption) (*GetCartByCondReply, error) {
+	out := new(GetCartByCondReply)
+	err := c.cc.Invoke(ctx, "/bingfood.service.v1.BingfoodService/GetCartDetail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bingfoodServiceClient) UserLoginOrRegister(ctx context.Context, in *UserLoginOrRegisterRequest, opts ...grpc.CallOption) (*UserLoginOrRegisterReply, error) {
 	out := new(UserLoginOrRegisterReply)
 	err := c.cc.Invoke(ctx, "/bingfood.service.v1.BingfoodService/UserLoginOrRegister", in, out, opts...)
@@ -68,6 +78,7 @@ func (c *bingfoodServiceClient) UserLoginOrRegister(ctx context.Context, in *Use
 type BingfoodServiceServer interface {
 	OrderSettle(context.Context, *SettleOrderRequest) (*SettleOrderReply, error)
 	AddCartItem(context.Context, *AddCartItemRequest) (*AddCartItemReply, error)
+	GetCartDetail(context.Context, *GetCartByCondRequest) (*GetCartByCondReply, error)
 	UserLoginOrRegister(context.Context, *UserLoginOrRegisterRequest) (*UserLoginOrRegisterReply, error)
 	mustEmbedUnimplementedBingfoodServiceServer()
 }
@@ -81,6 +92,9 @@ func (UnimplementedBingfoodServiceServer) OrderSettle(context.Context, *SettleOr
 }
 func (UnimplementedBingfoodServiceServer) AddCartItem(context.Context, *AddCartItemRequest) (*AddCartItemReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddCartItem not implemented")
+}
+func (UnimplementedBingfoodServiceServer) GetCartDetail(context.Context, *GetCartByCondRequest) (*GetCartByCondReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCartDetail not implemented")
 }
 func (UnimplementedBingfoodServiceServer) UserLoginOrRegister(context.Context, *UserLoginOrRegisterRequest) (*UserLoginOrRegisterReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserLoginOrRegister not implemented")
@@ -134,6 +148,24 @@ func _BingfoodService_AddCartItem_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BingfoodService_GetCartDetail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCartByCondRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BingfoodServiceServer).GetCartDetail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bingfood.service.v1.BingfoodService/GetCartDetail",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BingfoodServiceServer).GetCartDetail(ctx, req.(*GetCartByCondRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _BingfoodService_UserLoginOrRegister_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UserLoginOrRegisterRequest)
 	if err := dec(in); err != nil {
@@ -166,6 +198,10 @@ var BingfoodService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddCartItem",
 			Handler:    _BingfoodService_AddCartItem_Handler,
+		},
+		{
+			MethodName: "GetCartDetail",
+			Handler:    _BingfoodService_GetCartDetail_Handler,
 		},
 		{
 			MethodName: "UserLoginOrRegister",

@@ -57,15 +57,15 @@ func (uc *CartUseCase) GetCartHandler(ctx context.Context, req *v1.GetCartByCond
         return nil, 0, v1.ErrorInvalidArgument("错误, 请检查是否按要求传递参数")
     }
 
-    var cart *entity.Cart
-    _ = copier.CopyWithOption(cart, req.CartCond, copier.Option{
-        IgnoreEmpty: true,
+    var cart entity.Cart
+    _ = copier.CopyWithOption(&cart, req.CartCond, copier.Option{
+        IgnoreEmpty: false,
         DeepCopy:    true,
     })
     limit := (int)(req.PageInfo.PageSize)
     offset := (int)(req.PageInfo.Page)
 
-    ret, total, err := uc.repo.GetCart(ctx, cart, limit, offset)
+    ret, total, err := uc.repo.GetCart(ctx, &cart, limit, offset)
     if err != nil {
         return nil, 0, v1.ErrorInternal("获取购物车失败, internal error : %v", err.Error())
     }

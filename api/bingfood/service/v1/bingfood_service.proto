@@ -24,6 +24,13 @@ service BingfoodService {
     };
   }
 
+  rpc GetCartDetail (bingfood.service.v1.GetCartByCondRequest) returns (bingfood.service.v1.GetCartByCondReply) {
+    option (google.api.http) = {
+      post: "/cart/getDetail",
+      body: "*",
+    };
+  }
+
   rpc UserLoginOrRegister (UserLoginOrRegisterRequest) returns (UserLoginOrRegisterReply) {
     option (google.api.http) = {
       post: "/user/loginOrRegister",

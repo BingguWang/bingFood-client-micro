@@ -26,10 +26,11 @@ func NewCartCase(cc v13.CartServiceClient, logger log.Logger) *CartCase {
 }
 
 type CartSrvInterface interface {
-    AddCartItem(ctx context.Context, req *v1.AddCartItemRequest) (ret *v13.AddCartItemReply, err error)
+    AddCartItem(ctx context.Context, req *v1.AddCartItemRequest) (err error)
+    GetCartDetail(ctx context.Context, in *v1.GetCartByCondRequest) (*v1.CartPagination, error)
 }
 
-func (uc *CartCase) AddCartItem(ctx context.Context, req *v1.AddCartItemRequest) (ret *v13.AddCartItemReply, err error) {
+func (uc *CartCase) AddCartItem(ctx context.Context, req *v1.AddCartItemRequest) (err error) {
     uc.log.WithContext(ctx).Infof("AddCartItem args: %v", utils.ToJsonString(req))
 
     // todo 假设一下在这里加入context参数，其实是要在其他 地方塞入
@@ -45,12 +46,31 @@ func (uc *CartCase) AddCartItem(ctx context.Context, req *v1.AddCartItemRequest)
         IgnoreEmpty: false,
         DeepCopy:    true,
     })
-    ret, err = uc.cc.AddCartItem(ctx, rq)
+    ret, err := uc.cc.AddCartItem(ctx, rq)
     log.Infof("调用服务bingfood.cart.service/AddCartItem, 得到结果: %v ", utils.ToJsonString(ret))
+    if err != nil {
+        return err
+    }
+    return err
+}
+
+func (uc *CartCase) GetCartDetail(ctx context.Context, req *v1.GetCartByCondRequest) (*v1.CartPagination, error) {
+    uc.log.WithContext(ctx).Infof("GetCartDetail args: %v", utils.ToJsonString(req))
+    var rq v13.GetCartByCondRequest
+    copier.Copy(&rq, req)
+    log.Infof("参数：%s", utils.ToJsonString(rq))
+
+    ret, err := uc.cc.GetCartByCond(ctx, &rq)
     if err != nil {
         return nil, err
     }
-    return ret, err
+    log.Infof("调用服务bingfood.cart.service/GetCartByCond, 得到结果: %v ", utils.ToJsonString(ret.Data))
+    var reply v1.CartPagination
+    copier.CopyWithOption(&reply, &ret.Data, copier.Option{
+        IgnoreEmpty: false,
+        DeepCopy:    true,
+    })
+    return &reply, nil
 }
 
 func NewCartServiceClient(r registry.Discovery, ac *conf.JWT) v13.CartServiceClient {

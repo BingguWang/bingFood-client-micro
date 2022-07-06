@@ -18,11 +18,13 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 const OperationBingfoodServiceAddCartItem = "/bingfood.service.v1.BingfoodService/AddCartItem"
+const OperationBingfoodServiceGetCartDetail = "/bingfood.service.v1.BingfoodService/GetCartDetail"
 const OperationBingfoodServiceOrderSettle = "/bingfood.service.v1.BingfoodService/OrderSettle"
 const OperationBingfoodServiceUserLoginOrRegister = "/bingfood.service.v1.BingfoodService/UserLoginOrRegister"
 
 type BingfoodServiceHTTPServer interface {
 	AddCartItem(context.Context, *AddCartItemRequest) (*AddCartItemReply, error)
+	GetCartDetail(context.Context, *GetCartByCondRequest) (*GetCartByCondReply, error)
 	OrderSettle(context.Context, *SettleOrderRequest) (*SettleOrderReply, error)
 	UserLoginOrRegister(context.Context, *UserLoginOrRegisterRequest) (*UserLoginOrRegisterReply, error)
 }
@@ -31,6 +33,7 @@ func RegisterBingfoodServiceHTTPServer(s *http.Server, srv BingfoodServiceHTTPSe
 	r := s.Route("/")
 	r.POST("/order/settle", _BingfoodService_OrderSettle0_HTTP_Handler(srv))
 	r.POST("/cart/addItem", _BingfoodService_AddCartItem0_HTTP_Handler(srv))
+	r.POST("/cart/getDetail", _BingfoodService_GetCartDetail0_HTTP_Handler(srv))
 	r.POST("/user/loginOrRegister", _BingfoodService_UserLoginOrRegister0_HTTP_Handler(srv))
 }
 
@@ -72,6 +75,25 @@ func _BingfoodService_AddCartItem0_HTTP_Handler(srv BingfoodServiceHTTPServer) f
 	}
 }
 
+func _BingfoodService_GetCartDetail0_HTTP_Handler(srv BingfoodServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetCartByCondRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBingfoodServiceGetCartDetail)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetCartDetail(ctx, req.(*GetCartByCondRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetCartByCondReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _BingfoodService_UserLoginOrRegister0_HTTP_Handler(srv BingfoodServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in UserLoginOrRegisterRequest
@@ -93,6 +115,7 @@ func _BingfoodService_UserLoginOrRegister0_HTTP_Handler(srv BingfoodServiceHTTPS
 
 type BingfoodServiceHTTPClient interface {
 	AddCartItem(ctx context.Context, req *AddCartItemRequest, opts ...http.CallOption) (rsp *AddCartItemReply, err error)
+	GetCartDetail(ctx context.Context, req *GetCartByCondRequest, opts ...http.CallOption) (rsp *GetCartByCondReply, err error)
 	OrderSettle(ctx context.Context, req *SettleOrderRequest, opts ...http.CallOption) (rsp *SettleOrderReply, err error)
 	UserLoginOrRegister(ctx context.Context, req *UserLoginOrRegisterRequest, opts ...http.CallOption) (rsp *UserLoginOrRegisterReply, err error)
 }
@@ -110,6 +133,19 @@ func (c *BingfoodServiceHTTPClientImpl) AddCartItem(ctx context.Context, in *Add
 	pattern := "/cart/addItem"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBingfoodServiceAddCartItem))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BingfoodServiceHTTPClientImpl) GetCartDetail(ctx context.Context, in *GetCartByCondRequest, opts ...http.CallOption) (*GetCartByCondReply, error) {
+	var out GetCartByCondReply
+	pattern := "/cart/getDetail"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBingfoodServiceGetCartDetail))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

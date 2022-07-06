@@ -35,13 +35,13 @@ func (s *CartServiceImpl) GetCartByCond(ctx context.Context, in *v1.GetCartByCon
         }, err
     }
     var ret []*v1.Cart
-    copier.CopyWithOption(ret, list, copier.Option{
+    copier.CopyWithOption(&ret, &list, copier.Option{
         IgnoreEmpty: true,
         DeepCopy:    true,
     })
     return &v1.GetCartByCondReply{
         RetCode: 200,
-        RetMsg:  "成功获取购物车 : " + "userMOBILE from ctx",
+        RetMsg:  "成功获取购物车",
         Data: &v1.CartPagination{
             List:     ret,
             Total:    total,
@@ -64,7 +64,6 @@ func (s *CartServiceImpl) GetCartByCartIds(ctx context.Context, in *v1.GetCartBy
     copier.CopyWithOption(&ret, &list, copier.Option{
         IgnoreEmpty: false,
     })
-    log.Info("000000000000000 ret is : %v", utils.ToJsonString(ret))
 
     return &v1.GetCartByCartIdsReply{
         RetCode: 200,

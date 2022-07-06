@@ -36,7 +36,7 @@ func (s *CartServiceImpl) GetCartByCond(ctx context.Context, in *v1.GetCartByCon
     }
     var ret []*v1.Cart
     copier.CopyWithOption(&ret, &list, copier.Option{
-        IgnoreEmpty: true,
+        IgnoreEmpty: false,
         DeepCopy:    true,
     })
     return &v1.GetCartByCondReply{

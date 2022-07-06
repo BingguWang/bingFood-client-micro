@@ -7,7 +7,6 @@ import (
     "github.com/BingguWang/bingfood-client-micro/app/prod/service/internal/utils"
     "github.com/go-kratos/kratos/v2/log"
     "github.com/jinzhu/copier"
-    "time"
 )
 
 type ProdRepo interface {
@@ -26,14 +25,13 @@ func NewProdUseCase(repo ProdRepo, logger log.Logger) *ProdUseCase {
 
 func (pc *ProdUseCase) GetSkuByCondHandler(ctx context.Context, req *v1.GetSkuByCondRequest) (ret []*v1.Sku, total int64, err error) {
     pc.log.WithContext(ctx).Infof("GetSkuByCond args: %v", utils.ToJsonString(req))
-
+    limit := (int)(req.PageInfo.PageSize)
+    offset := (int)(req.PageInfo.PageSize)
     var r entity.Sku
-    copier.CopyWithOption(&req.SkuCond, &r, copier.Option{
+    copier.CopyWithOption(&r, &req.SkuCond, copier.Option{
         IgnoreEmpty: false,
         DeepCopy:    true,
     })
-    limit := (int)(req.PageInfo.PageSize)
-    offset := (int)(req.PageInfo.Page)
     skuList, total, err := pc.repo.GetSkuByCond(ctx, &r, limit, offset)
     if err != nil {
         return nil, 0, err

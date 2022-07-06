@@ -16,8 +16,7 @@ import (
 )
 
 type CartCase struct {
-    cc v13.CartServiceClient
-
+    cc  v13.CartServiceClient
     log *log.Helper
 }
 

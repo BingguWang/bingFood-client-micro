@@ -50,6 +50,7 @@ func (c *cartRepo) GetCart(ctx context.Context, cart *entity.Cart, limit, offset
     if err != nil {
         return
     }
+    log.Infof("select result is : %v ", utils.ToJsonString(ret))
     return ret, total, nil
 }
 

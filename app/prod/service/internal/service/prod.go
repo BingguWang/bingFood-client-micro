@@ -16,6 +16,12 @@ func NewProdServiceImpl(pc *biz.ProdUseCase) *ProdServiceImpl {
     return &ProdServiceImpl{pc: pc}
 }
 func (s *ProdServiceImpl) GetSkuByCond(ctx context.Context, in *v1.GetSkuByCondRequest) (*v1.GetSkuByCondReply, error) {
+    var limit, offset int64
+    if in.PageInfo != nil {
+        limit = in.PageInfo.PageSize
+        offset = in.PageInfo.Page
+    }
+    in.PageInfo = &v1.PageInfo{Page: offset, PageSize: limit}
     list, total, err := s.pc.GetSkuByCondHandler(ctx, in)
     if err != nil {
         return &v1.GetSkuByCondReply{
@@ -29,8 +35,8 @@ func (s *ProdServiceImpl) GetSkuByCond(ctx context.Context, in *v1.GetSkuByCondR
         Data: &v1.CartPagination{
             List:     list,
             Total:    total,
-            Page:     in.PageInfo.Page,
-            PageSize: in.PageInfo.PageSize,
+            Page:     limit,
+            PageSize: offset,
         },
     }, nil
 }

@@ -3,6 +3,7 @@ package biz
 import (
     "context"
     v1 "github.com/BingguWang/bingfood-client-micro/api/cart/service/v1/pbgo/v1"
+    v2 "github.com/BingguWang/bingfood-client-micro/api/prod/service/v1/pbgo/v1"
     "github.com/BingguWang/bingfood-client-micro/app/cart/service/internal/data/entity"
     "github.com/BingguWang/bingfood-client-micro/app/cart/service/internal/utils"
     "github.com/go-kratos/kratos/v2/log"
@@ -21,12 +22,12 @@ type CartRepo interface {
 
 type CartUseCase struct {
     repo CartRepo
-
-    log *log.Helper
+    usc  v2.ProdServiceClient
+    log  *log.Helper
 }
 
-func NewCartUseCase(repo CartRepo, logger log.Logger) *CartUseCase {
-    return &CartUseCase{repo: repo, log: log.NewHelper(logger)}
+func NewCartUseCase(repo CartRepo, usc v2.ProdServiceClient, logger log.Logger) *CartUseCase {
+    return &CartUseCase{repo: repo, usc: usc, log: log.NewHelper(logger)}
 }
 
 func (uc *CartUseCase) AddCartItem(ctx context.Context, req *v1.AddCartItemRequest) error {
@@ -69,6 +70,21 @@ func (uc *CartUseCase) GetCartHandler(ctx context.Context, req *v1.GetCartByCond
     if err != nil {
         return nil, 0, v1.ErrorInternal("获取购物车失败, internal error : %v", err.Error())
     }
+
+    for _, ca := range ret {
+        rt, err := uc.usc.GetSkuByCond(ctx, &v2.GetSkuByCondRequest{
+            SkuCond: &v2.Sku{SkuId: ca.SkuId},
+        })
+        log.Infof("调用服务bingfood.prod.service/GetSkuByCond, 得到结果: %v ", utils.ToJsonString(rt))
+        if err != nil {
+            return nil, 0, err
+        }
+        if rt.Data.List == nil {
+            continue
+        }
+        copier.Copy(&ca.Sku, rt.Data.List[0])
+    }
+
     return ret, total, nil
 }
 

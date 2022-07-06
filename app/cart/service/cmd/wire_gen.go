@@ -7,31 +7,33 @@
 package main
 
 import (
-    "github.com/BingguWang/bingfood-client-micro/app/cart/service/internal/biz"
-    "github.com/BingguWang/bingfood-client-micro/app/cart/service/internal/conf"
-    "github.com/BingguWang/bingfood-client-micro/app/cart/service/internal/data"
-    "github.com/BingguWang/bingfood-client-micro/app/cart/service/internal/server"
-    "github.com/BingguWang/bingfood-client-micro/app/cart/service/internal/service"
-    "github.com/go-kratos/kratos/v2"
-    "github.com/go-kratos/kratos/v2/log"
+	"github.com/BingguWang/bingfood-client-micro/app/cart/service/internal/biz"
+	"github.com/BingguWang/bingfood-client-micro/app/cart/service/internal/conf"
+	"github.com/BingguWang/bingfood-client-micro/app/cart/service/internal/data"
+	"github.com/BingguWang/bingfood-client-micro/app/cart/service/internal/server"
+	"github.com/BingguWang/bingfood-client-micro/app/cart/service/internal/service"
+	"github.com/go-kratos/kratos/v2"
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 // Injectors from wire.go:
 
 // wireApp init kratos application.
 func wireApp(confServer *conf.Server, confData *conf.Data, jwt *conf.JWT, logger log.Logger, registry *conf.Registry) (*kratos.App, func(), error) {
-    db := data.NewDB(confData)
-    dataData, cleanup, err := data.NewData(confData, logger, db)
-    if err != nil {
-        return nil, nil, err
-    }
-    cartRepo := data.NewCartRepo(dataData, logger)
-    cartUseCase := biz.NewCartUseCase(cartRepo, logger)
-    cartServiceImpl := service.NewCartService(cartUseCase)
-    grpcServer := server.NewGRPCServer(confServer, cartServiceImpl, logger)
-    registrar := server.NewRegistrar(registry)
-    app := newApp(logger, grpcServer, registrar)
-    return app, func() {
-        cleanup()
-    }, nil
+	db := data.NewDB(confData)
+	dataData, cleanup, err := data.NewData(confData, logger, db)
+	if err != nil {
+		return nil, nil, err
+	}
+	cartRepo := data.NewCartRepo(dataData, logger)
+	discovery := biz.NewDiscovery(registry)
+	prodServiceClient := biz.NewProdServiceClient(discovery, jwt)
+	cartUseCase := biz.NewCartUseCase(cartRepo, prodServiceClient, logger)
+	cartServiceImpl := service.NewCartService(cartUseCase)
+	grpcServer := server.NewGRPCServer(confServer, cartServiceImpl, logger)
+	registrar := server.NewRegistrar(registry)
+	app := newApp(logger, grpcServer, registrar)
+	return app, func() {
+		cleanup()
+	}, nil
 }

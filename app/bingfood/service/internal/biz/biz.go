@@ -14,8 +14,10 @@ var ProviderSet = wire.NewSet(
     NewOrderServiceClient,
     NewCartServiceClient,
     NewUserServiceClient,
+    NewProdServiceClient,
     NewAuthCase,
     NewOrderCase,
+    NewProdCase,
     NewCartCase,
     NewUserCase,
     NewDiscovery,
@@ -35,4 +37,3 @@ func NewDiscovery(cf *conf.Registry) registry.Discovery {
     r := etcd.New(client)
     return r
 }
-

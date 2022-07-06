@@ -1,27 +1,27 @@
 FROM golang:alpine as builder
 #FROM golang:1.16 AS builder
 
+ARG APP_RELATIVE_PATH
 COPY . /src
-WORKDIR /src/app/user/service/cmd/server
+WORKDIR /src/app/${APP_RELATIVE_PATH}
 
 RUN go env -w GO111MODULE=on \
     && go env -w GOPROXY=https://goproxy.cn,direct \
     && go env -w CGO_ENABLED=0 \
-    && mkdir -p bin/  \
-    && go build  -o ./configs ./...
+	&& mkdir -p bin/ \
+    && go build -o ./bin/ ./...
 
-FROM alpine:latest
+FROM alpine AS runner
+ARG APP_RELATIVE_PATH
 
+WORKDIR /src/app/${APP_RELATIVE_PATH}/cmd
 
-WORKDIR /src/app/user/service/cmd/server
+COPY --from=builder /src/app/${APP_RELATIVE_PATH}/bin/ .
+COPY --from=builder /src/app/${APP_RELATIVE_PATH}/configs/ ../configs/
 
-#COPY --from=builder /src/wait-for-it.sh /bin/
-COPY --from=builder /src/app/user/service/cmd/server/server .
-COPY --from=builder /src/app/user/service/configs/ ../../configs/
-
-EXPOSE 8000
-EXPOSE 9000
+# user 4 order 2 bingfood 0 cart 1
+EXPOSE 8002
+EXPOSE 9002
 VOLUME /data/conf
 
-#CMD ["./configs", "-conf", "/data/conf"]
-#CMD ["./configs"]
+#CMD ["./cmd"]

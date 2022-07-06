@@ -83,6 +83,9 @@ func main() {
     }
     fmt.Println((&rc).String())
 
+    // 等待依赖的容器都启动完
+    time.Sleep(5 * time.Second)
+
     app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Jwt, logger, &rc)
     if err != nil {
         panic(err)
@@ -91,7 +94,6 @@ func main() {
 
     // start and wait for stop signal
 
-    time.Sleep(5 * time.Second)
 
     if err := app.Run(); err != nil {
         panic(err)

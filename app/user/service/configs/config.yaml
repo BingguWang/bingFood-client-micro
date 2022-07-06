@@ -8,7 +8,7 @@ server:
 
 data:
   database:
-    dsn: root:1234@tcp(1.14.163.5:3306)/bingFood?charset=utf8mb4&parseTime=True&loc=Local
+    dsn: root:1234@tcp(1.14.163.5:3307)/bingFood?charset=utf8mb4&parseTime=True&loc=Local
   redis:
     addr: 127.0.0.1:6379
     read_timeout: 0.2s

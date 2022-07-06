@@ -1,25 +1,27 @@
 version: '3'
 services:
-#  web-shop:
-#    image: go-kratos/beer-web-shop:0.1.0
-#    ports:
-#      - 80:80
-#  web-admin:
-#    image: go-kratos/beer-web-admin:0.1.0
-#    ports:
-#      - 81:81
-  user-service:
-    image: 1.14.163.5:5000/user_service:v1
-    hostname: user-service
-    depends_on:
-      - user-db
-    #    command: ["sh","wait-for-it.sh", "user-db:3306", "--", "./configs" ]
-    command: [ "./configs" ]
+  #  web-shop:
+  #    image: go-kratos/beer-web-shop:0.1.0
+  #    ports:
+  #      - 80:80
+  #  web-admin:
+  #    image: go-kratos/beer-web-admin:0.1.0
+  #    ports:
+  #      - 81:81
+  #  bingfood-service:
+  #    image: 1.14.163.5:5000/bingfood/bingfood-bingfood-service:0.1.0
+  #    container_name: bingfood-service
+  #    hostname: bingfood-service
+  #    depends_on:
+  #      - bingfood-db
+  #      - etcd
+  #    #    command: ["sh","wait-for-it.sh", "user-db:3306", "--", "./configs" ]
+  #    command: [ "./cmd" ]
 
-  user-db:
+  bingfood-db:
     image: mysql:5.7
-    hostname: user-db
-    container_name: mysql-5.7-user-db
+    hostname: bingfood-db
+    container_name: mysql-5.7-bingfood-db
     privileged: true
     restart: always
     ports:
@@ -35,55 +37,139 @@ services:
       --default-authentication-plugin=mysql_native_password
     volumes:
       #映射mysql的数据目录到宿主机，保存数据
-      - "/app/mysql/data:/var/lib/mysql"
+      - "/app/mysql-bingfood/data:/var/lib/mysql"
       #根据宿主机下的配置文件创建容器
-      - "/app/mysql/conf/my.cnf:/etc/mysql/my.cnf"
+      - "/app/mysql-bingfood/conf/my.cnf:/etc/mysql/my.cnf"
 
-#  catalog-service:
-#    image: go-kratos/beer-catalog-service:0.1.0
-#    hostname: catalog-service
-#    depends_on:
-#      - catalog-db
-#  catalog-db:
-#    image: mysql:8
-#    hostname: catalog-db
-#    environment:
-#      MYSQL_ROOT_PASSWORD: dangerous
-#  cart-service:
-#    image: go-kratos/beer-cart-service:0.1.0
-#    hostname: cart-service
-#    depends_on:
-#      - cart-db
-#  cart-db:
-#    image: mongo:4
-#    hostname: cart-db
-#    environment:
-#      MONGO_INITDB_ROOT_PASSWORD: dangerous
-#  order-service:
-#    image: go-kratos/beer-cart-service:0.1.0
-#    hostname: order-service
-#    depends_on:
-#      - order-db
-#  order-db:
-#    image: mysql:8
-#    hostname: order-db
-#    environment:
-#      MYSQL_ROOT_PASSWORD: dangerous
-#  payment-service:
-#    image: go-kratos/beer-payment-service:0.1.0
-#    hostname: cart-service
-#  zookeeper:
-#    image: docker.io/bitnami/zookeeper:3.7
-#    ports:
-#      - 2181:2181
-#    environment:
-#      - ALLOW_ANONYMOUS_LOGIN=yes
-#  kafka:
-#    image: docker.io/bitnami/kafka:2
-#    ports:
-#      - 9092:9092
-#    environment:
-#      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-#      - ALLOW_PLAINTEXT_LISTENER=yes
-#    depends_on:
-#      - zookeeper
+
+  #  user-service:
+  #    image: 1.14.163.5:5000/bingfood/bingfood-user-service:0.1.0
+  #    container_name: bingfood-user-service
+  #    hostname: user-service
+  #    depends_on:
+  #      - user-db
+  #      - etcd
+  #    #    command: ["sh","wait-for-it.sh", "user-db:3306", "--", "./configs" ]
+  #    command: [ "./cmd" ]
+
+  user-db:
+    image: mysql:5.7
+    hostname: user-db
+    container_name: mysql-5.7-user-db
+    privileged: true
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_PASS: 1234
+      TZ: Asia/Shanghai
+    command:
+      --wait_timeout=31536000
+      --interactive_timeout=31536000
+      --max_connections=1000
+      --default-authentication-plugin=mysql_native_password
+    volumes:
+      #映射mysql的数据目录到宿主机，保存数据
+      - "/app/mysql-user/data:/var/lib/mysql"
+      #根据宿主机下的配置文件创建容器
+      - "/app/mysql-user/conf/my.cnf:/etc/mysql/my.cnf"
+
+  #  order-service:
+  #    image: 1.14.163.5:5000/bingfood/bingfood-user-service:0.1.0
+  #    container_name: bingfood-order-service
+  #    hostname: order-service
+  #    depends_on:
+  #      - order-db
+  #      - etcd
+  #    #    command: ["sh","wait-for-it.sh", "user-db:3306", "--", "./configs" ]
+  #    command: [ "./cmd" ]
+
+  order-db:
+    image: mysql:5.7
+    hostname: order-db
+    container_name: mysql-5.7-order-db
+    privileged: true
+    restart: always
+    ports:
+      - "3308:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_PASS: 1234
+      TZ: Asia/Shanghai
+    command:
+      --wait_timeout=31536000
+      --interactive_timeout=31536000
+      --max_connections=1000
+      --default-authentication-plugin=mysql_native_password
+    volumes:
+      #映射mysql的数据目录到宿主机，保存数据
+      - "/app/mysql-order/data:/var/lib/mysql"
+      #根据宿主机下的配置文件创建容器
+      - "/app/mysql-order/conf/my.cnf:/etc/mysql/my.cnf"
+
+
+  #  cart-service:
+  #    image: 1.14.163.5:5000/bingfood/bingfood-cart-service:0.1.0
+  #    container_name: bingfood-cart-service
+  #    hostname: cart-service
+  #    depends_on:
+  #      - cart-db
+  #      - etcd
+  #    #    command: ["sh","wait-for-it.sh", "user-db:3306", "--", "./configs" ]
+  #    command: [ "./cmd" ]
+
+  cart-db:
+    image: mysql:5.7
+    hostname: cart-db
+    container_name: mysql-5.7-cart-db
+    privileged: true
+    restart: always
+    ports:
+      - "3309:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_PASS: 1234
+      TZ: Asia/Shanghai
+    command:
+      --wait_timeout=31536000
+      --interactive_timeout=31536000
+      --max_connections=1000
+      --default-authentication-plugin=mysql_native_password
+    volumes:
+      #映射mysql的数据目录到宿主机，保存数据
+      - "/app/mysql-cart/data:/var/lib/mysql"
+      #根据宿主机下的配置文件创建容器
+      - "/app/mysql-cart/conf/my.cnf:/etc/mysql/my.cnf"
+
+
+  etcd:
+    image: bitnami/etcd:3
+    hostname: etcd
+    container_name: etcd-service
+    #    deploy:
+    #      replicas: 1
+    #      restart_policy:
+    #        condition: on-failure
+    # ports:
+    #   - "2379:2379"
+    #   - "2380:2380"
+    #   - "4001:4001"
+    #   - "7001:7001"
+    privileged: true
+    volumes:
+      - "/app/etcd/data:/bitnami/etcd/data"
+    environment:
+      - "ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379"
+      - "ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379"
+      #集群节点之间监听2380
+      - "ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380"
+      - "ETCD_INITIAL_ADVERTISE_PEER_URLS=http://0.0.0.0:2380"
+      #参数指不用密码可以连接
+      - "ALLOW_NONE_AUTHENTICATION=yes"
+      - "ETCD_INITIAL_CLUSTER=node1=http://0.0.0.0:2380"
+      - "ETCD_NAME=node1"
+      - "ETCD_DATA_DIR=/opt/bitnami/etcd/data"
+    ports:
+      - 2379:2379
+      - 2380:2380

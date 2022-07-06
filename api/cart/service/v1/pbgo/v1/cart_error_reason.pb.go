@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.28.0
 // 	protoc        v3.19.1
-// source: v1/cart_error_reason.proto
+// source: v1/prod_error_reason.proto
 
 package v1
 

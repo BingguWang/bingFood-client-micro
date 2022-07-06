@@ -35,6 +35,8 @@ func (c *cartRepo) AddCartRepo(ctx context.Context, cartRow *entity.Cart) error 
         c.log.WithContext(ctx).Infof("insert prod failed : %v", err.Error())
         return err
     }
+    // 调用服务,填充sku信息
+
     return nil
 }
 

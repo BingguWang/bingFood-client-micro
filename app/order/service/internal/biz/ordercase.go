@@ -37,6 +37,7 @@ type OrderRepo interface {
     InsertOrder(context.Context, *entity.Order) (string, error)
     InsertOrderPay(context.Context, *entity.OrderPay) error
     AfterPaySuccess(context.Context, string) error
+    AfterPayTimeout(context.Context, string) error
 }
 
 func (oc *Ordercase) SettleOrderHandler(ctx context.Context, req *v1.SettleOrderRequest) (ret interface{}, err error) {
@@ -225,6 +226,15 @@ func (oc *Ordercase) PayOrderSuccessHandler(ctx context.Context, req *v1.PayOrde
     oc.log.WithContext(ctx).Infof("PayOrderSuccessHandler args: %v", utils.ToJsonString(req))
 
     if err := oc.repo.AfterPaySuccess(ctx, req.OrderNumber); err != nil {
+        return err
+    }
+    return nil
+}
+
+func (oc *Ordercase) PayOrderTimeoutHandler(ctx context.Context, req *v1.PayOrderTimeoutRequest) (err error) {
+    oc.log.WithContext(ctx).Infof("PayOrderTimeoutHandler args: %v", utils.ToJsonString(req))
+
+    if err := oc.repo.AfterPayTimeout(ctx, req.OrderNumber); err != nil {
         return err
     }
     return nil

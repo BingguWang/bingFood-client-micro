@@ -39,6 +39,7 @@ service BingfoodService {
     };
   }
 
+
   rpc AddCartItem (bingfood.service.v1.AddCartItemRequest) returns (bingfood.service.v1.AddCartItemReply) {
     option (google.api.http) = {
       post: "/cart/addItem",

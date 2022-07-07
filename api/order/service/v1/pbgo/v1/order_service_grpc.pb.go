@@ -27,6 +27,8 @@ type OrderServiceClient interface {
 	PayOrder(ctx context.Context, in *PayOrderRequest, opts ...grpc.CallOption) (*PayOrderReply, error)
 	// 支付回调成功后，需要做的订单操作
 	PayOrderSuccess(ctx context.Context, in *PayOrderSuccessRequest, opts ...grpc.CallOption) (*PayOrderSuccessReply, error)
+	// 支付超时取消时,需要做的工作
+	PayOrderTimeout(ctx context.Context, in *PayOrderTimeoutRequest, opts ...grpc.CallOption) (*PayOrderTimeoutReply, error)
 }
 
 type orderServiceClient struct {
@@ -73,6 +75,15 @@ func (c *orderServiceClient) PayOrderSuccess(ctx context.Context, in *PayOrderSu
 	return out, nil
 }
 
+func (c *orderServiceClient) PayOrderTimeout(ctx context.Context, in *PayOrderTimeoutRequest, opts ...grpc.CallOption) (*PayOrderTimeoutReply, error) {
+	out := new(PayOrderTimeoutReply)
+	err := c.cc.Invoke(ctx, "/order.service.v1.OrderService/PayOrderTimeout", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServiceServer is the server API for OrderService service.
 // All implementations must embed UnimplementedOrderServiceServer
 // for forward compatibility
@@ -82,6 +93,8 @@ type OrderServiceServer interface {
 	PayOrder(context.Context, *PayOrderRequest) (*PayOrderReply, error)
 	// 支付回调成功后，需要做的订单操作
 	PayOrderSuccess(context.Context, *PayOrderSuccessRequest) (*PayOrderSuccessReply, error)
+	// 支付超时取消时,需要做的工作
+	PayOrderTimeout(context.Context, *PayOrderTimeoutRequest) (*PayOrderTimeoutReply, error)
 	mustEmbedUnimplementedOrderServiceServer()
 }
 
@@ -100,6 +113,9 @@ func (UnimplementedOrderServiceServer) PayOrder(context.Context, *PayOrderReques
 }
 func (UnimplementedOrderServiceServer) PayOrderSuccess(context.Context, *PayOrderSuccessRequest) (*PayOrderSuccessReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PayOrderSuccess not implemented")
+}
+func (UnimplementedOrderServiceServer) PayOrderTimeout(context.Context, *PayOrderTimeoutRequest) (*PayOrderTimeoutReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PayOrderTimeout not implemented")
 }
 func (UnimplementedOrderServiceServer) mustEmbedUnimplementedOrderServiceServer() {}
 
@@ -186,6 +202,24 @@ func _OrderService_PayOrderSuccess_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OrderService_PayOrderTimeout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PayOrderTimeoutRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).PayOrderTimeout(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/order.service.v1.OrderService/PayOrderTimeout",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).PayOrderTimeout(ctx, req.(*PayOrderTimeoutRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OrderService_ServiceDesc is the grpc.ServiceDesc for OrderService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -208,6 +242,10 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PayOrderSuccess",
 			Handler:    _OrderService_PayOrderSuccess_Handler,
+		},
+		{
+			MethodName: "PayOrderTimeout",
+			Handler:    _OrderService_PayOrderTimeout_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

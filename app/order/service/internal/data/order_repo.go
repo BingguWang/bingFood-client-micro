@@ -72,7 +72,7 @@ func (o *orderRepo) InsertOrder(ctx context.Context, order *entity.Order) (strin
             return err
         }
         // 更新库存
-        if e := o.changeSkuStock(order, ctx, -1); e != nil {
+        if e := o.changeSkuStock(order.OrderItems, ctx, -1); e != nil {
             return e
         }
 
@@ -84,7 +84,7 @@ func (o *orderRepo) InsertOrder(ctx context.Context, order *entity.Order) (strin
         return
     }); err != nil {
         // todo 回滚库存, 暂时使用手动回滚，后面可以结合dtm分布式事务
-        if e := o.changeSkuStock(order, ctx, 1); e != nil {
+        if e := o.changeSkuStock(order.OrderItems, ctx, 1); e != nil {
             err = e
         }
         return "", err
@@ -92,8 +92,8 @@ func (o *orderRepo) InsertOrder(ctx context.Context, order *entity.Order) (strin
     return order.OrderNumber, nil
 }
 
-func (o *orderRepo) changeSkuStock(order *entity.Order, ctx context.Context, isAdd int64) error {
-    for _, item := range order.OrderItems {
+func (o *orderRepo) changeSkuStock(items []entity.OrderItem, ctx context.Context, isAdd int64) error {
+    for _, item := range items {
         // 更新库存
         r := v1.UpdateSkuStockRequest{
             SkuId:     item.SkuId,
@@ -161,5 +161,46 @@ func (o *orderRepo) AfterPaySuccess(ctx context.Context, payNo string) error {
         return err
     }
 
+    return nil
+}
+
+func (o *orderRepo) AfterPayTimeout(ctx context.Context, orderNumber string) error {
+    log.Infof("AfterPayTimeout , req is : %v", utils.ToJsonString(orderNumber))
+
+    db := o.data.db
+    var order entity.Order
+    if err := db.Transaction(func(tx *gorm.DB) error {
+        // TODO 状态转换用用状态机
+        txx := tx.Model(&entity.Order{}).Where("order_number = ? AND order_status = 0", orderNumber).
+            Update("order_status", 4)
+        if rows := txx.RowsAffected; rows == 0 {
+            log.Infof("has been paid ,orderNumber:%v", orderNumber)
+            return nil
+        }
+        if err := txx.Error; err != nil {
+            log.Errorf("orderNumber:%v, update order_status failed : %v", orderNumber, err)
+            return err
+        }
+
+        if err := tx.Preload("OrderItems").
+            Where(&entity.Order{OrderNumber: orderNumber}).
+            Find(&order).Error; err != nil {
+            log.Errorf("select order failed : %v", err)
+            return err
+        }
+        // 恢复库存,调用prod服务
+        if e := o.changeSkuStock(order.OrderItems, ctx, 1); e != nil {
+            return e
+        }
+
+        return nil
+    }); err != nil {
+        // 回滚 恢复库存操作
+        if e := o.changeSkuStock(order.OrderItems, ctx, -1); e != nil {
+            err = e
+        }
+        log.Errorf("transaction failed : %v", err)
+        return err
+    }
     return nil
 }

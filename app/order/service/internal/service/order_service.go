@@ -50,3 +50,10 @@ func (s *OrderServiceImpl) PayOrderSuccess(ctx context.Context, in *v1.PayOrderS
     }
     return &v1.PayOrderSuccessReply{RetCode: 200, RetMsg: "call PayOrderSuccess successfully"}, nil
 }
+
+func (s *OrderServiceImpl) PayOrderTimeout(ctx context.Context, in *v1.PayOrderTimeoutRequest) (*v1.PayOrderTimeoutReply, error) {
+    if err := s.od.PayOrderTimeoutHandler(ctx, in); err != nil {
+        return nil, err
+    }
+    return &v1.PayOrderTimeoutReply{RetCode: 200, RetMsg: "call PayOrderTimeout successfully"}, nil
+}

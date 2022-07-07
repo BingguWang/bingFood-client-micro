@@ -22,6 +22,18 @@ service OrderService {
   rpc PayOrderSuccess (PayOrderSuccessRequest) returns (PayOrderSuccessReply) {
   }
 
+  // 支付超时取消时,需要做的工作
+  rpc PayOrderTimeout (PayOrderTimeoutRequest) returns (PayOrderTimeoutReply) {
+  }
+
+}
+
+message PayOrderTimeoutRequest {
+  string orderNumber = 1;
+}
+message PayOrderTimeoutReply {
+  uint32  retCode = 1;
+  string  retMsg = 2;
 }
 
 message PayOrderSuccessRequest {

@@ -8,16 +8,16 @@ info:
     version: 0.0.1
 paths:
   /cart/addItem:
-        post:
-            tags:
-                - BingfoodService
-            operationId: BingfoodService_AddCartItem
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/bingfood.service.v1.AddCartItemRequest'
-                required: true
+    post:
+      tags:
+        - BingfoodService
+      operationId: BingfoodService_AddCartItem
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/bingfood.service.v1.AddCartItemRequest'
+        required: true
             responses:
                 "200":
                     description: OK
@@ -33,26 +33,8 @@ paths:
             requestBody:
                 content:
                     application/json:
-                        schema:
-                            $ref: '#/components/schemas/bingfood.service.v1.GetCartByCondRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/bingfood.service.v1.GetCartByCondReply'
-    /order/settle:
-        post:
-            tags:
-                - BingfoodService
-            operationId: BingfoodService_OrderSettle
-            requestBody:
-                content:
-                    application/json:
                       schema:
-                        $ref: '#/components/schemas/bingfood.service.v1.SettleOrderRequest'
+                        $ref: '#/components/schemas/bingfood.service.v1.GetCartByCondRequest'
                 required: true
             responses:
               "200":
@@ -60,7 +42,43 @@ paths:
                 content:
                   application/json:
                     schema:
-                      $ref: '#/components/schemas/bingfood.service.v1.SettleOrderReply'
+                      $ref: '#/components/schemas/bingfood.service.v1.GetCartByCondReply'
+  /order/pay:
+    post:
+      tags:
+        - BingfoodService
+      operationId: BingfoodService_OrderPay
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/bingfood.service.v1.PayOrderRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bingfood.service.v1.PayOrderReply'
+  /order/settle:
+    post:
+      tags:
+        - BingfoodService
+      operationId: BingfoodService_OrderSettle
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/bingfood.service.v1.SettleOrderRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bingfood.service.v1.SettleOrderReply'
   /order/submit:
     post:
       tags:
@@ -79,6 +97,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/bingfood.service.v1.SubmitOrderReply'
+  /pay/notice/wechat:
+    post:
+      tags:
+        - BingfoodService
+      operationId: BingfoodService_NoticePayOrder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/bingfood.service.v1.NoticePayOrderRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bingfood.service.v1.NoticePayOrderReply'
   /user/loginOrRegister:
     post:
       tags:
@@ -89,24 +125,24 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/bingfood.service.v1.UserLoginOrRegisterRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/bingfood.service.v1.UserLoginOrRegisterReply'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bingfood.service.v1.UserLoginOrRegisterReply'
 components:
     schemas:
       bingfood.service.v1.AddCartItemReply:
-            type: object
-            properties:
-                retCode:
-                    type: integer
-                    format: uint32
-                retMsg:
-                    type: string
+        type: object
+        properties:
+          retCode:
+            type: integer
+            format: uint32
+          retMsg:
+            type: string
         bingfood.service.v1.AddCartItemRequest:
             type: object
             properties:
@@ -209,142 +245,174 @@ components:
                     type: integer
                     format: uint32
                 retMsg:
-                    type: string
+                  type: string
                 data:
-                    $ref: '#/components/schemas/bingfood.service.v1.CartPagination'
-        bingfood.service.v1.GetCartByCondRequest:
-            type: object
-            properties:
-                cartCond:
-                    $ref: '#/components/schemas/bingfood.service.v1.Cart'
-                pageInfo:
-                    $ref: '#/components/schemas/bingfood.service.v1.PageInfo'
-        bingfood.service.v1.OrderItem:
-            type: object
-            properties:
-              OrderItemId:
-                type: integer
-                format: uint64
-              OrderNumber:
-                type: string
-              UserId:
-                type: integer
-                format: uint64
-              Score:
-                type: integer
-                format: int32
-              ShopId:
-                type: integer
-                format: uint64
-              ProdId:
-                type: integer
-                format: uint64
-              ProdName:
-                type: string
-              ProdNums:
-                type: integer
-                format: uint32
-              Pic:
-                type: string
-              ProdAmount:
-                type: integer
-                format: uint32
-              SkuId:
-                type: integer
-                format: uint32
-              SkuName:
-                type: string
-              Price:
-                type: integer
-                format: int32
-                oriPrice:
-                    type: integer
-                    format: int32
-              PropId:
-                type: integer
-                format: uint64
-              PropName:
-                type: string
-              IsCommented:
-                type: integer
-                format: uint32
-              IsGood:
-                type: integer
-                format: uint32
-              Comment:
-                type: string
-        bingfood.service.v1.PageInfo:
-            type: object
-            properties:
-                page:
-                    type: integer
-                    format: int64
-                pageSize:
-                    type: integer
-                    format: int64
-        bingfood.service.v1.SettleOrderReply:
-            type: object
-            properties:
-                retCode:
-                    type: integer
-                    format: uint32
-                retMsg:
-                    type: string
-                data:
-                    $ref: '#/components/schemas/bingfood.service.v1.SettleOrderReply_Data'
+                  $ref: '#/components/schemas/bingfood.service.v1.CartPagination'
+      bingfood.service.v1.GetCartByCondRequest:
+        type: object
+        properties:
+          cartCond:
+            $ref: '#/components/schemas/bingfood.service.v1.Cart'
+          pageInfo:
+            $ref: '#/components/schemas/bingfood.service.v1.PageInfo'
+      bingfood.service.v1.NoticePayOrderReply:
+        type: object
+        properties:
+          retCode:
+            type: integer
+            format: uint32
+          retMsg:
+            type: string
+      bingfood.service.v1.NoticePayOrderRequest:
+        type: object
+        properties:
+          xmlData:
+            type: string
+          payNo:
+            type: string
+      bingfood.service.v1.OrderItem:
+        type: object
+        properties:
+          OrderItemId:
+            type: integer
+            format: uint64
+          OrderNumber:
+            type: string
+          UserId:
+            type: integer
+            format: uint64
+          Score:
+            type: integer
+            format: int32
+          ShopId:
+            type: integer
+            format: uint64
+          ProdId:
+            type: integer
+            format: uint64
+          ProdName:
+            type: string
+          ProdNums:
+            type: integer
+            format: uint32
+          Pic:
+            type: string
+          ProdAmount:
+            type: integer
+            format: uint32
+          SkuId:
+            type: integer
+            format: uint32
+          SkuName:
+            type: string
+          Price:
+            type: integer
+            format: int32
+          oriPrice:
+            type: integer
+            format: int32
+          PropId:
+            type: integer
+            format: uint64
+          PropName:
+            type: string
+          IsCommented:
+            type: integer
+            format: uint32
+          IsGood:
+            type: integer
+            format: uint32
+          Comment:
+            type: string
+      bingfood.service.v1.PageInfo:
+        type: object
+        properties:
+          page:
+            type: integer
+            format: int64
+          pageSize:
+            type: integer
+            format: int64
+      bingfood.service.v1.PayOrderReply:
+        type: object
+        properties:
+          retCode:
+            type: integer
+            format: uint32
+          retMsg:
+            type: string
+          WxPayMpOrderResult:
+            $ref: '#/components/schemas/bingfood.service.v1.WxPayMpOrderResult'
+          payNo:
+            type: string
+      bingfood.service.v1.PayOrderRequest:
+        type: object
+        properties:
+          orderNumber:
+            type: string
+      bingfood.service.v1.SettleOrderReply:
+        type: object
+        properties:
+          retCode:
+            type: integer
+            format: uint32
+          retMsg:
+            type: string
+          data:
+            $ref: '#/components/schemas/bingfood.service.v1.SettleOrderReply_Data'
         bingfood.service.v1.SettleOrderReply_Data:
-            type: object
-            properties:
-              ShopId:
-                type: integer
-                format: uint64
-              UserId:
-                type: integer
-                format: uint64
-              UserMobile:
-                type: string
-              ReceiverMobile:
-                type: string
-              ProdName:
-                type: string
-              ProdNums:
-                type: integer
-                format: int32
-              PackingAmount:
-                type: integer
-                format: int32
-              DeliverAmount:
-                type: integer
-                format: int32
-              ProdAmount:
-                type: integer
-                format: int32
-              DiscountAmount:
-                type: integer
-                format: int32
-              FinalAmount:
-                type: integer
-                format: int32
-              DeliverType:
-                type: integer
-                format: uint32
-              OrderItems:
-                type: array
-                items:
-                  $ref: '#/components/schemas/bingfood.service.v1.OrderItem'
-        bingfood.service.v1.SettleOrderRequest:
           type: object
           properties:
-            cartIds:
-              type: array
-              items:
-                type: integer
-                format: uint64
-            userId:
+            ShopId:
               type: integer
               format: uint64
-            userMobile:
+            UserId:
+              type: integer
+              format: uint64
+            UserMobile:
               type: string
+            ReceiverMobile:
+              type: string
+            ProdName:
+              type: string
+            ProdNums:
+              type: integer
+              format: int32
+            PackingAmount:
+              type: integer
+              format: int32
+            DeliverAmount:
+              type: integer
+              format: int32
+            ProdAmount:
+              type: integer
+              format: int32
+            DiscountAmount:
+              type: integer
+              format: int32
+            FinalAmount:
+              type: integer
+              format: int32
+            DeliverType:
+              type: integer
+              format: uint32
+            OrderItems:
+              type: array
+              items:
+                $ref: '#/components/schemas/bingfood.service.v1.OrderItem'
+      bingfood.service.v1.SettleOrderRequest:
+        type: object
+        properties:
+          cartIds:
+            type: array
+            items:
+              type: integer
+              format: uint64
+          userId:
+            type: integer
+            format: uint64
+          userMobile:
+            type: string
       bingfood.service.v1.SubmitOrderReply:
         type: object
         properties:
@@ -412,18 +480,22 @@ components:
           retMsg:
             type: string
           token:
-                    type: string
-        bingfood.service.v1.UserLoginOrRegisterRequest:
-            type: object
-            properties:
-                userMobile:
-                    type: string
-                loginType:
-                    type: integer
-                    format: uint32
-                validCode:
-                    type: string
-                password:
-                    type: string
+            type: string
+      bingfood.service.v1.UserLoginOrRegisterRequest:
+        type: object
+        properties:
+          userMobile:
+            type: string
+          loginType:
+            type: integer
+            format: uint32
+          validCode:
+            type: string
+          password:
+            type: string
+      bingfood.service.v1.WxPayMpOrderResult:
+        type: object
+        properties: { }
+        description: 模拟一下微信支付就行了
 tags:
     - name: BingfoodService

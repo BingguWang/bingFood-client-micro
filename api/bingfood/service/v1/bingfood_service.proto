@@ -17,9 +17,24 @@ service BingfoodService {
     };
   }
 
+  rpc OrderPay (bingfood.service.v1.PayOrderRequest) returns (bingfood.service.v1.PayOrderReply) {
+    option (google.api.http) = {
+      post: "/order/pay",
+      body: "*",
+    };
+  }
+
   rpc OrderSubmit (bingfood.service.v1.SubmitOrderRequest) returns (bingfood.service.v1.SubmitOrderReply) {
     option (google.api.http) = {
       post: "/order/submit",
+      body: "*",
+    };
+  }
+
+
+  rpc NoticePayOrder (NoticePayOrderRequest) returns (NoticePayOrderReply) {
+    option (google.api.http) = {
+      post: "/pay/notice/wechat",
       body: "*",
     };
   }
@@ -47,6 +62,14 @@ service BingfoodService {
 
 }
 
+message NoticePayOrderRequest {
+  string xmlData = 1 ;
+  string payNo = 2;
+}
+message  NoticePayOrderReply {
+  uint32  retCode = 1;
+  string  retMsg = 2;
+}
 message UserLoginOrRegisterRequest {
   string  userMobile = 1; // 手机号
   uint32  loginType = 2; // 登录方式 0 手机号登录 1 密码登录 2 第三方微信登录

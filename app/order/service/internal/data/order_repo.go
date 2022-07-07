@@ -2,6 +2,9 @@ package data
 
 import (
     "context"
+    "fmt"
+    v12 "github.com/BingguWang/bingfood-client-micro/api/bingfood/service/v1/pbgo/v1"
+    v11 "github.com/BingguWang/bingfood-client-micro/api/order/service/v1/pbgo/v1"
     "github.com/BingguWang/bingfood-client-micro/api/prod/service/v1/pbgo/v1"
     "github.com/BingguWang/bingfood-client-micro/app/order/service/internal/biz"
     "github.com/BingguWang/bingfood-client-micro/app/order/service/internal/data/entity"
@@ -10,6 +13,7 @@ import (
     "gorm.io/gorm"
     "gorm.io/gorm/clause"
     "strconv"
+    "time"
 )
 
 type orderRepo struct {
@@ -27,8 +31,18 @@ func NewOrderRepo(data *Data, pc v1.ProdServiceClient, logger log.Logger) biz.Or
         log:  log.NewHelper(logger),
     }
 }
-func (o *orderRepo) FindByOrderNumber(context.Context, int64) (*entity.Order, error) {
-    return nil, nil
+func (o *orderRepo) FindByOrderNumber(ctx context.Context, orderNumber string) (*entity.Order, error) {
+    db := o.data.db
+    var od []*entity.Order
+    if err := db.Where(&entity.Order{OrderNumber: orderNumber}).
+        Where("order_status = 0").
+        Find(&od).Error; err != nil {
+        return nil, err
+    }
+    if len(od) == 0 {
+        return nil, v12.ErrorInternal(fmt.Sprintf("传入订单号不正确，不存在此未支付的订单:%v", orderNumber))
+    }
+    return od[0], nil
 }
 
 func (o *orderRepo) AddSettleToRedis(ctx context.Context, k, v string) (string, error) {
@@ -90,5 +104,62 @@ func (o *orderRepo) changeSkuStock(order *entity.Order, ctx context.Context, isA
         }
         log.Infof("调用服务bingfood.order.service/UpdateSkuStock")
     }
+    return nil
+}
+
+func (o *orderRepo) InsertOrderPay(ctx context.Context, orderPay *entity.OrderPay) error {
+    log.Infof("InsertOrderPay , req is : %v", utils.ToJsonString(orderPay))
+    db := o.data.db
+
+    // 生成orderPay的支付号PayNo,这个值作为外部号码传给微信支付接口
+    number := o.data.node.Generate()
+    orderPay.PayNo = strconv.FormatInt(number.Int64(), 10)
+
+    if err := db.Transaction(func(tx *gorm.DB) (err error) {
+        if err = tx.Create(&orderPay).Error; err != nil {
+            log.Errorf("insert orderPay failed : %v", err.Error())
+            return
+        }
+        return
+    }); err != nil {
+        return err
+    }
+    return nil
+}
+
+func (o *orderRepo) AfterPaySuccess(ctx context.Context, payNo string) error {
+    log.Infof("AfterPaySuccess , req is : %v", utils.ToJsonString(payNo))
+
+    db := o.data.db
+    if err := db.Transaction(func(tx *gorm.DB) error {
+        var orderPay []entity.OrderPay
+        if err := db.Where(&entity.OrderPay{PayNo: payNo}).Find(&orderPay).Error; err != nil {
+            return err
+        }
+        if len(orderPay) == 0 {
+            return v11.ErrorInternal(fmt.Sprintf("支付信息有误,payNo:%v", payNo))
+        }
+
+        // 修改订单支付表的支付状态
+        log.Infof("修改订单支付表信息...")
+        tx2 := tx.Model(&entity.OrderPay{}).Where("pay_no = ? AND pay_status = 0", payNo).
+            Update("pay_status", 1)
+        if rows := tx2.RowsAffected; rows == 0 {
+            return v11.ErrorInternal("the orderPay has been paid , payNo : %v", payNo)
+        }
+
+        // 修改订单状态为已支付
+        log.Infof("修改订单表信息...")
+        txx := tx.Model(&entity.Order{}).Where("order_number = ? AND order_status = 0", orderPay[0].OrderNumber).
+            Select("order_status", "pay_type", "pay_at").
+            Updates(map[string]interface{}{"order_status": 1, "pay_type": orderPay[0].PayType, "pay_at": time.Now()})
+        if rows := txx.RowsAffected; rows == 0 {
+            return v11.ErrorInternal("order has been paid , orderNumber : %v", orderPay[0].OrderNumber)
+        }
+        return nil
+    }); err != nil {
+        return err
+    }
+
     return nil
 }

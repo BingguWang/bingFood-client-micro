@@ -23,7 +23,9 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BingfoodServiceClient interface {
 	OrderSettle(ctx context.Context, in *SettleOrderRequest, opts ...grpc.CallOption) (*SettleOrderReply, error)
+	OrderPay(ctx context.Context, in *PayOrderRequest, opts ...grpc.CallOption) (*PayOrderReply, error)
 	OrderSubmit(ctx context.Context, in *SubmitOrderRequest, opts ...grpc.CallOption) (*SubmitOrderReply, error)
+	NoticePayOrder(ctx context.Context, in *NoticePayOrderRequest, opts ...grpc.CallOption) (*NoticePayOrderReply, error)
 	AddCartItem(ctx context.Context, in *AddCartItemRequest, opts ...grpc.CallOption) (*AddCartItemReply, error)
 	GetCartDetail(ctx context.Context, in *GetCartByCondRequest, opts ...grpc.CallOption) (*GetCartByCondReply, error)
 	UserLoginOrRegister(ctx context.Context, in *UserLoginOrRegisterRequest, opts ...grpc.CallOption) (*UserLoginOrRegisterReply, error)
@@ -46,9 +48,27 @@ func (c *bingfoodServiceClient) OrderSettle(ctx context.Context, in *SettleOrder
 	return out, nil
 }
 
+func (c *bingfoodServiceClient) OrderPay(ctx context.Context, in *PayOrderRequest, opts ...grpc.CallOption) (*PayOrderReply, error) {
+	out := new(PayOrderReply)
+	err := c.cc.Invoke(ctx, "/bingfood.service.v1.BingfoodService/OrderPay", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *bingfoodServiceClient) OrderSubmit(ctx context.Context, in *SubmitOrderRequest, opts ...grpc.CallOption) (*SubmitOrderReply, error) {
 	out := new(SubmitOrderReply)
 	err := c.cc.Invoke(ctx, "/bingfood.service.v1.BingfoodService/OrderSubmit", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bingfoodServiceClient) NoticePayOrder(ctx context.Context, in *NoticePayOrderRequest, opts ...grpc.CallOption) (*NoticePayOrderReply, error) {
+	out := new(NoticePayOrderReply)
+	err := c.cc.Invoke(ctx, "/bingfood.service.v1.BingfoodService/NoticePayOrder", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +107,9 @@ func (c *bingfoodServiceClient) UserLoginOrRegister(ctx context.Context, in *Use
 // for forward compatibility
 type BingfoodServiceServer interface {
 	OrderSettle(context.Context, *SettleOrderRequest) (*SettleOrderReply, error)
+	OrderPay(context.Context, *PayOrderRequest) (*PayOrderReply, error)
 	OrderSubmit(context.Context, *SubmitOrderRequest) (*SubmitOrderReply, error)
+	NoticePayOrder(context.Context, *NoticePayOrderRequest) (*NoticePayOrderReply, error)
 	AddCartItem(context.Context, *AddCartItemRequest) (*AddCartItemReply, error)
 	GetCartDetail(context.Context, *GetCartByCondRequest) (*GetCartByCondReply, error)
 	UserLoginOrRegister(context.Context, *UserLoginOrRegisterRequest) (*UserLoginOrRegisterReply, error)
@@ -101,8 +123,14 @@ type UnimplementedBingfoodServiceServer struct {
 func (UnimplementedBingfoodServiceServer) OrderSettle(context.Context, *SettleOrderRequest) (*SettleOrderReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OrderSettle not implemented")
 }
+func (UnimplementedBingfoodServiceServer) OrderPay(context.Context, *PayOrderRequest) (*PayOrderReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OrderPay not implemented")
+}
 func (UnimplementedBingfoodServiceServer) OrderSubmit(context.Context, *SubmitOrderRequest) (*SubmitOrderReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OrderSubmit not implemented")
+}
+func (UnimplementedBingfoodServiceServer) NoticePayOrder(context.Context, *NoticePayOrderRequest) (*NoticePayOrderReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method NoticePayOrder not implemented")
 }
 func (UnimplementedBingfoodServiceServer) AddCartItem(context.Context, *AddCartItemRequest) (*AddCartItemReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddCartItem not implemented")
@@ -144,6 +172,24 @@ func _BingfoodService_OrderSettle_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BingfoodService_OrderPay_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PayOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BingfoodServiceServer).OrderPay(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bingfood.service.v1.BingfoodService/OrderPay",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BingfoodServiceServer).OrderPay(ctx, req.(*PayOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _BingfoodService_OrderSubmit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SubmitOrderRequest)
 	if err := dec(in); err != nil {
@@ -158,6 +204,24 @@ func _BingfoodService_OrderSubmit_Handler(srv interface{}, ctx context.Context, 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BingfoodServiceServer).OrderSubmit(ctx, req.(*SubmitOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BingfoodService_NoticePayOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NoticePayOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BingfoodServiceServer).NoticePayOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bingfood.service.v1.BingfoodService/NoticePayOrder",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BingfoodServiceServer).NoticePayOrder(ctx, req.(*NoticePayOrderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -228,8 +292,16 @@ var BingfoodService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _BingfoodService_OrderSettle_Handler,
 		},
 		{
+			MethodName: "OrderPay",
+			Handler:    _BingfoodService_OrderPay_Handler,
+		},
+		{
 			MethodName: "OrderSubmit",
 			Handler:    _BingfoodService_OrderSubmit_Handler,
+		},
+		{
+			MethodName: "NoticePayOrder",
+			Handler:    _BingfoodService_NoticePayOrder_Handler,
 		},
 		{
 			MethodName: "AddCartItem",

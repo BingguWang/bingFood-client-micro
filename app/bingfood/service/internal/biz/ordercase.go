@@ -23,6 +23,7 @@ type OrderCase struct {
 type OrderSrvInterface interface {
     SettleOrder(ctx context.Context, req *v1.SettleOrderRequest) (ret *v1.SettleOrderReply_Data, err error)
     SubmitOrder(ctx context.Context, req *v1.SubmitOrderRequest) (string, error)
+    PayOrder(ctx context.Context, req *v1.PayOrderRequest) (*v1.WxPayMpOrderResult, error)
 }
 
 func NewOrderCase(oc v12.OrderServiceClient, logger log.Logger) *OrderCase {
@@ -66,6 +67,30 @@ func (oc *OrderCase) SubmitOrder(ctx context.Context, req *v1.SubmitOrderRequest
     }
     log.Infof("调用服务bingfood.order.service/SubmitOrder, 得到结果: %v ", utils.ToJsonString(ret))
     return ret.OrderNumber, nil
+}
+
+func (oc *OrderCase) PayOrder(ctx context.Context, req *v1.PayOrderRequest) (*v1.WxPayMpOrderResult, string, error) {
+    oc.log.WithContext(ctx).Infof("PayOrder args: %v", utils.ToJsonString(req))
+    r := &v12.PayOrderRequest{OrderNumber: req.OrderNumber}
+    ret, err := oc.oc.PayOrder(ctx, r)
+    if err != nil {
+        return nil, "", err
+    }
+    log.Infof("调用服务bingfood.order.service/PayOrder, 得到结果: %v ", utils.ToJsonString(ret))
+    var result v1.WxPayMpOrderResult
+    copier.Copy(&result, &ret.WxPayMpOrderResult)
+    return &result, ret.PayNo, err
+}
+
+func (oc *OrderCase) NoticePayOrderHandler(ctx context.Context, req *v1.NoticePayOrderRequest) error {
+    oc.log.WithContext(ctx).Infof("NoticePayOrderHandler args: %v", utils.ToJsonString(req))
+    r := &v12.PayOrderSuccessRequest{OrderNumber: req.PayNo}
+
+    if _, err := oc.oc.PayOrderSuccess(ctx, r); err != nil {
+        return err
+    }
+    log.Infof("调用服务bingfood.order.service/PayOrder")
+    return nil
 }
 
 func NewOrderServiceClient(r registry.Discovery, ac *conf.JWT) v12.OrderServiceClient {

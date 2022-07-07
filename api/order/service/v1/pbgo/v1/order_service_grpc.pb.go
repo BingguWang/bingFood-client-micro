@@ -24,6 +24,9 @@ const _ = grpc.SupportPackageIsVersion7
 type OrderServiceClient interface {
 	SettleOrder(ctx context.Context, in *SettleOrderRequest, opts ...grpc.CallOption) (*SettleOrderReply, error)
 	SubmitOrder(ctx context.Context, in *SubmitOrderRequest, opts ...grpc.CallOption) (*SubmitOrderReply, error)
+	PayOrder(ctx context.Context, in *PayOrderRequest, opts ...grpc.CallOption) (*PayOrderReply, error)
+	// 支付回调成功后，需要做的订单操作
+	PayOrderSuccess(ctx context.Context, in *PayOrderSuccessRequest, opts ...grpc.CallOption) (*PayOrderSuccessReply, error)
 }
 
 type orderServiceClient struct {
@@ -52,12 +55,33 @@ func (c *orderServiceClient) SubmitOrder(ctx context.Context, in *SubmitOrderReq
 	return out, nil
 }
 
+func (c *orderServiceClient) PayOrder(ctx context.Context, in *PayOrderRequest, opts ...grpc.CallOption) (*PayOrderReply, error) {
+	out := new(PayOrderReply)
+	err := c.cc.Invoke(ctx, "/order.service.v1.OrderService/PayOrder", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderServiceClient) PayOrderSuccess(ctx context.Context, in *PayOrderSuccessRequest, opts ...grpc.CallOption) (*PayOrderSuccessReply, error) {
+	out := new(PayOrderSuccessReply)
+	err := c.cc.Invoke(ctx, "/order.service.v1.OrderService/PayOrderSuccess", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServiceServer is the server API for OrderService service.
 // All implementations must embed UnimplementedOrderServiceServer
 // for forward compatibility
 type OrderServiceServer interface {
 	SettleOrder(context.Context, *SettleOrderRequest) (*SettleOrderReply, error)
 	SubmitOrder(context.Context, *SubmitOrderRequest) (*SubmitOrderReply, error)
+	PayOrder(context.Context, *PayOrderRequest) (*PayOrderReply, error)
+	// 支付回调成功后，需要做的订单操作
+	PayOrderSuccess(context.Context, *PayOrderSuccessRequest) (*PayOrderSuccessReply, error)
 	mustEmbedUnimplementedOrderServiceServer()
 }
 
@@ -70,6 +94,12 @@ func (UnimplementedOrderServiceServer) SettleOrder(context.Context, *SettleOrder
 }
 func (UnimplementedOrderServiceServer) SubmitOrder(context.Context, *SubmitOrderRequest) (*SubmitOrderReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitOrder not implemented")
+}
+func (UnimplementedOrderServiceServer) PayOrder(context.Context, *PayOrderRequest) (*PayOrderReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PayOrder not implemented")
+}
+func (UnimplementedOrderServiceServer) PayOrderSuccess(context.Context, *PayOrderSuccessRequest) (*PayOrderSuccessReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PayOrderSuccess not implemented")
 }
 func (UnimplementedOrderServiceServer) mustEmbedUnimplementedOrderServiceServer() {}
 
@@ -120,6 +150,42 @@ func _OrderService_SubmitOrder_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OrderService_PayOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PayOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).PayOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/order.service.v1.OrderService/PayOrder",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).PayOrder(ctx, req.(*PayOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OrderService_PayOrderSuccess_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PayOrderSuccessRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).PayOrderSuccess(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/order.service.v1.OrderService/PayOrderSuccess",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).PayOrderSuccess(ctx, req.(*PayOrderSuccessRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OrderService_ServiceDesc is the grpc.ServiceDesc for OrderService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +200,14 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SubmitOrder",
 			Handler:    _OrderService_SubmitOrder_Handler,
+		},
+		{
+			MethodName: "PayOrder",
+			Handler:    _OrderService_PayOrder_Handler,
+		},
+		{
+			MethodName: "PayOrderSuccess",
+			Handler:    _OrderService_PayOrderSuccess_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

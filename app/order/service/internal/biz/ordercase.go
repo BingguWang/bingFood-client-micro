@@ -11,6 +11,7 @@ import (
     "github.com/go-kratos/kratos/v2/log"
     "github.com/jinzhu/copier"
     "strconv"
+    "time"
 )
 
 type Ordercase struct {
@@ -27,13 +28,15 @@ func NewOrdercase(repo OrderRepo, cc v12.CartServiceClient, logger log.Logger) *
 type OrderRepo interface {
     //Save(context.Context, *entity.Order) error
     //Update(context.Context, *entity.Order) error
-    FindByOrderNumber(context.Context, int64) (*entity.Order, error)
+    FindByOrderNumber(context.Context, string) (*entity.Order, error)
     //ListByOrderNumber(context.Context, string) ([]*entity.Order, error)
     //ListAll(context.Context) ([]*entity.Order, error)
     AddSettleToRedis(context.Context, string, string) (string, error)
     GetSettleFromRedis(context.Context, string) (string, error)
     DelSettleFromRedis(context.Context, string) (int64, error)
     InsertOrder(context.Context, *entity.Order) (string, error)
+    InsertOrderPay(context.Context, *entity.OrderPay) error
+    AfterPaySuccess(context.Context, string) error
 }
 
 func (oc *Ordercase) SettleOrderHandler(ctx context.Context, req *v1.SettleOrderRequest) (ret interface{}, err error) {
@@ -182,4 +185,47 @@ func (oc *Ordercase) SubmitOrderHandler(ctx context.Context, req *v1.SubmitOrder
     }
 
     return od.OrderNumber, nil
+}
+
+func (oc *Ordercase) PayOrderHandler(ctx context.Context, req *v1.PayOrderRequest) (result *v1.WxPayMpOrderResult, payNo string, err error) {
+    oc.log.WithContext(ctx).Infof("PayOrderHandler args: %v", utils.ToJsonString(req))
+    order, err := oc.repo.FindByOrderNumber(ctx, req.OrderNumber)
+    if err != nil {
+        return nil, "", err
+    }
+    var (
+        totalFee int     // 一共支付多少钱
+        openid   = "123" // 用户唯一标识
+    )
+
+    orderPay := entity.OrderPay{
+        OrderNumber: order.OrderNumber,
+        ShopId:      order.ShopId,
+        UserId:      order.UserId,
+        UserMobile:  order.UserMobile,
+        PayAmount:   totalFee,
+        PayTypeName: "微信支付",
+        PayType:     1,
+        PayStatus:   0, // 回调成功后才修改为1
+    }
+    if err := oc.repo.InsertOrderPay(ctx, &orderPay); err != nil {
+        return nil, "", err
+    }
+
+    // 传入微信支付SDK需要的参数
+    // 模拟调用wx支付接口...
+    return MockWxPay(totalFee, orderPay.PayNo, openid), orderPay.PayNo, nil
+}
+func MockWxPay(totalFee int, outTrade, userId string) *v1.WxPayMpOrderResult {
+    time.Sleep(500 * time.Millisecond)
+    return &v1.WxPayMpOrderResult{}
+}
+
+func (oc *Ordercase) PayOrderSuccessHandler(ctx context.Context, req *v1.PayOrderSuccessRequest) (err error) {
+    oc.log.WithContext(ctx).Infof("PayOrderSuccessHandler args: %v", utils.ToJsonString(req))
+
+    if err := oc.repo.AfterPaySuccess(ctx, req.OrderNumber); err != nil {
+        return err
+    }
+    return nil
 }

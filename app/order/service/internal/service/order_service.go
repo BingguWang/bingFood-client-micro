@@ -35,3 +35,18 @@ func (s *OrderServiceImpl) SubmitOrder(ctx context.Context, in *v1.SubmitOrderRe
     }
     return &v1.SubmitOrderReply{RetCode: 200, RetMsg: "call SubmitOrder successfully", OrderNumber: orderNumber}, nil
 }
+
+func (s *OrderServiceImpl) PayOrder(ctx context.Context, in *v1.PayOrderRequest) (*v1.PayOrderReply, error) {
+    ret, payNo, err := s.od.PayOrderHandler(ctx, in)
+    if err != nil {
+        return nil, err
+    }
+    return &v1.PayOrderReply{RetCode: 200, RetMsg: "call PayOrder successfully", WxPayMpOrderResult: ret, PayNo: payNo}, nil
+}
+
+func (s *OrderServiceImpl) PayOrderSuccess(ctx context.Context, in *v1.PayOrderSuccessRequest) (*v1.PayOrderSuccessReply, error) {
+    if err := s.od.PayOrderSuccessHandler(ctx, in); err != nil {
+        return nil, err
+    }
+    return &v1.PayOrderSuccessReply{RetCode: 200, RetMsg: "call PayOrderSuccess successfully"}, nil
+}

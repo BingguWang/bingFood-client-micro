@@ -12,7 +12,22 @@ service OrderService {
 
   rpc SubmitOrder (SubmitOrderRequest) returns (SubmitOrderReply) {
   }
+
+  rpc PayOrder (PayOrderRequest) returns (PayOrderReply) {
+  }
 }
+message PayOrderRequest {
+  string orderNumber = 1;
+}
+
+message PayOrderReply {
+  uint32  retCode = 1;
+  string  retMsg = 2;
+  WxPayMpOrderResult WxPayMpOrderResult = 3 ;
+  string payNo = 4;
+}
+// 模拟一下微信支付就行了
+message WxPayMpOrderResult {}
 
 message SubmitOrderRequest{
   string remarks = 1;                // 备注

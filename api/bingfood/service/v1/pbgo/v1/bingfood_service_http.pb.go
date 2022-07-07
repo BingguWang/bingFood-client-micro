@@ -19,6 +19,8 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationBingfoodServiceAddCartItem = "/bingfood.service.v1.BingfoodService/AddCartItem"
 const OperationBingfoodServiceGetCartDetail = "/bingfood.service.v1.BingfoodService/GetCartDetail"
+const OperationBingfoodServiceNoticePayOrder = "/bingfood.service.v1.BingfoodService/NoticePayOrder"
+const OperationBingfoodServiceOrderPay = "/bingfood.service.v1.BingfoodService/OrderPay"
 const OperationBingfoodServiceOrderSettle = "/bingfood.service.v1.BingfoodService/OrderSettle"
 const OperationBingfoodServiceOrderSubmit = "/bingfood.service.v1.BingfoodService/OrderSubmit"
 const OperationBingfoodServiceUserLoginOrRegister = "/bingfood.service.v1.BingfoodService/UserLoginOrRegister"
@@ -26,6 +28,8 @@ const OperationBingfoodServiceUserLoginOrRegister = "/bingfood.service.v1.Bingfo
 type BingfoodServiceHTTPServer interface {
 	AddCartItem(context.Context, *AddCartItemRequest) (*AddCartItemReply, error)
 	GetCartDetail(context.Context, *GetCartByCondRequest) (*GetCartByCondReply, error)
+	NoticePayOrder(context.Context, *NoticePayOrderRequest) (*NoticePayOrderReply, error)
+	OrderPay(context.Context, *PayOrderRequest) (*PayOrderReply, error)
 	OrderSettle(context.Context, *SettleOrderRequest) (*SettleOrderReply, error)
 	OrderSubmit(context.Context, *SubmitOrderRequest) (*SubmitOrderReply, error)
 	UserLoginOrRegister(context.Context, *UserLoginOrRegisterRequest) (*UserLoginOrRegisterReply, error)
@@ -34,7 +38,9 @@ type BingfoodServiceHTTPServer interface {
 func RegisterBingfoodServiceHTTPServer(s *http.Server, srv BingfoodServiceHTTPServer) {
 	r := s.Route("/")
 	r.POST("/order/settle", _BingfoodService_OrderSettle0_HTTP_Handler(srv))
+	r.POST("/order/pay", _BingfoodService_OrderPay0_HTTP_Handler(srv))
 	r.POST("/order/submit", _BingfoodService_OrderSubmit0_HTTP_Handler(srv))
+	r.POST("/pay/notice/wechat", _BingfoodService_NoticePayOrder0_HTTP_Handler(srv))
 	r.POST("/cart/addItem", _BingfoodService_AddCartItem0_HTTP_Handler(srv))
 	r.POST("/cart/getDetail", _BingfoodService_GetCartDetail0_HTTP_Handler(srv))
 	r.POST("/user/loginOrRegister", _BingfoodService_UserLoginOrRegister0_HTTP_Handler(srv))
@@ -59,6 +65,25 @@ func _BingfoodService_OrderSettle0_HTTP_Handler(srv BingfoodServiceHTTPServer) f
 	}
 }
 
+func _BingfoodService_OrderPay0_HTTP_Handler(srv BingfoodServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PayOrderRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBingfoodServiceOrderPay)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.OrderPay(ctx, req.(*PayOrderRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PayOrderReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _BingfoodService_OrderSubmit0_HTTP_Handler(srv BingfoodServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in SubmitOrderRequest
@@ -74,6 +99,25 @@ func _BingfoodService_OrderSubmit0_HTTP_Handler(srv BingfoodServiceHTTPServer) f
 			return err
 		}
 		reply := out.(*SubmitOrderReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BingfoodService_NoticePayOrder0_HTTP_Handler(srv BingfoodServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in NoticePayOrderRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBingfoodServiceNoticePayOrder)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.NoticePayOrder(ctx, req.(*NoticePayOrderRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*NoticePayOrderReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -138,6 +182,8 @@ func _BingfoodService_UserLoginOrRegister0_HTTP_Handler(srv BingfoodServiceHTTPS
 type BingfoodServiceHTTPClient interface {
 	AddCartItem(ctx context.Context, req *AddCartItemRequest, opts ...http.CallOption) (rsp *AddCartItemReply, err error)
 	GetCartDetail(ctx context.Context, req *GetCartByCondRequest, opts ...http.CallOption) (rsp *GetCartByCondReply, err error)
+	NoticePayOrder(ctx context.Context, req *NoticePayOrderRequest, opts ...http.CallOption) (rsp *NoticePayOrderReply, err error)
+	OrderPay(ctx context.Context, req *PayOrderRequest, opts ...http.CallOption) (rsp *PayOrderReply, err error)
 	OrderSettle(ctx context.Context, req *SettleOrderRequest, opts ...http.CallOption) (rsp *SettleOrderReply, err error)
 	OrderSubmit(ctx context.Context, req *SubmitOrderRequest, opts ...http.CallOption) (rsp *SubmitOrderReply, err error)
 	UserLoginOrRegister(ctx context.Context, req *UserLoginOrRegisterRequest, opts ...http.CallOption) (rsp *UserLoginOrRegisterReply, err error)
@@ -169,6 +215,32 @@ func (c *BingfoodServiceHTTPClientImpl) GetCartDetail(ctx context.Context, in *G
 	pattern := "/cart/getDetail"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBingfoodServiceGetCartDetail))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BingfoodServiceHTTPClientImpl) NoticePayOrder(ctx context.Context, in *NoticePayOrderRequest, opts ...http.CallOption) (*NoticePayOrderReply, error) {
+	var out NoticePayOrderReply
+	pattern := "/pay/notice/wechat"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBingfoodServiceNoticePayOrder))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BingfoodServiceHTTPClientImpl) OrderPay(ctx context.Context, in *PayOrderRequest, opts ...http.CallOption) (*PayOrderReply, error) {
+	var out PayOrderReply
+	pattern := "/order/pay"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBingfoodServiceOrderPay))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

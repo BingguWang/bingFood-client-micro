@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BingfoodServiceClient interface {
 	OrderSettle(ctx context.Context, in *SettleOrderRequest, opts ...grpc.CallOption) (*SettleOrderReply, error)
+	OrderSubmit(ctx context.Context, in *SubmitOrderRequest, opts ...grpc.CallOption) (*SubmitOrderReply, error)
 	AddCartItem(ctx context.Context, in *AddCartItemRequest, opts ...grpc.CallOption) (*AddCartItemReply, error)
 	GetCartDetail(ctx context.Context, in *GetCartByCondRequest, opts ...grpc.CallOption) (*GetCartByCondReply, error)
 	UserLoginOrRegister(ctx context.Context, in *UserLoginOrRegisterRequest, opts ...grpc.CallOption) (*UserLoginOrRegisterReply, error)
@@ -39,6 +40,15 @@ func NewBingfoodServiceClient(cc grpc.ClientConnInterface) BingfoodServiceClient
 func (c *bingfoodServiceClient) OrderSettle(ctx context.Context, in *SettleOrderRequest, opts ...grpc.CallOption) (*SettleOrderReply, error) {
 	out := new(SettleOrderReply)
 	err := c.cc.Invoke(ctx, "/bingfood.service.v1.BingfoodService/OrderSettle", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bingfoodServiceClient) OrderSubmit(ctx context.Context, in *SubmitOrderRequest, opts ...grpc.CallOption) (*SubmitOrderReply, error) {
+	out := new(SubmitOrderReply)
+	err := c.cc.Invoke(ctx, "/bingfood.service.v1.BingfoodService/OrderSubmit", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -77,6 +87,7 @@ func (c *bingfoodServiceClient) UserLoginOrRegister(ctx context.Context, in *Use
 // for forward compatibility
 type BingfoodServiceServer interface {
 	OrderSettle(context.Context, *SettleOrderRequest) (*SettleOrderReply, error)
+	OrderSubmit(context.Context, *SubmitOrderRequest) (*SubmitOrderReply, error)
 	AddCartItem(context.Context, *AddCartItemRequest) (*AddCartItemReply, error)
 	GetCartDetail(context.Context, *GetCartByCondRequest) (*GetCartByCondReply, error)
 	UserLoginOrRegister(context.Context, *UserLoginOrRegisterRequest) (*UserLoginOrRegisterReply, error)
@@ -89,6 +100,9 @@ type UnimplementedBingfoodServiceServer struct {
 
 func (UnimplementedBingfoodServiceServer) OrderSettle(context.Context, *SettleOrderRequest) (*SettleOrderReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OrderSettle not implemented")
+}
+func (UnimplementedBingfoodServiceServer) OrderSubmit(context.Context, *SubmitOrderRequest) (*SubmitOrderReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OrderSubmit not implemented")
 }
 func (UnimplementedBingfoodServiceServer) AddCartItem(context.Context, *AddCartItemRequest) (*AddCartItemReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddCartItem not implemented")
@@ -126,6 +140,24 @@ func _BingfoodService_OrderSettle_Handler(srv interface{}, ctx context.Context, 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BingfoodServiceServer).OrderSettle(ctx, req.(*SettleOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BingfoodService_OrderSubmit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubmitOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BingfoodServiceServer).OrderSubmit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bingfood.service.v1.BingfoodService/OrderSubmit",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BingfoodServiceServer).OrderSubmit(ctx, req.(*SubmitOrderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -194,6 +226,10 @@ var BingfoodService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "OrderSettle",
 			Handler:    _BingfoodService_OrderSettle_Handler,
+		},
+		{
+			MethodName: "OrderSubmit",
+			Handler:    _BingfoodService_OrderSubmit_Handler,
 		},
 		{
 			MethodName: "AddCartItem",

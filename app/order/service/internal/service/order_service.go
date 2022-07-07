@@ -25,5 +25,13 @@ func (s *OrderServiceImpl) SettleOrder(ctx context.Context, in *v1.SettleOrderRe
     }
     data := retData.(*v1.SettleOrderReply_Data)
     log.Infof("data : %v", utils.ToJsonString(retData))
-    return &v1.SettleOrderReply{RetCode: 200, RetMsg: "settle successfully : " + "useMobile : " + in.UserMobile, Data: data}, nil
+    return &v1.SettleOrderReply{RetCode: 200, RetMsg: "call SettleOrder successfully : " + "useMobile : " + in.UserMobile, Data: data}, nil
+}
+
+func (s *OrderServiceImpl) SubmitOrder(ctx context.Context, in *v1.SubmitOrderRequest) (*v1.SubmitOrderReply, error) {
+    orderNumber, err := s.od.SubmitOrderHandler(ctx, in)
+    if err != nil {
+        return nil, err
+    }
+    return &v1.SubmitOrderReply{RetCode: 200, RetMsg: "call SubmitOrder successfully", OrderNumber: orderNumber}, nil
 }

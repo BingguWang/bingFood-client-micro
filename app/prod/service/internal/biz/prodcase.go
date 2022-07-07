@@ -12,6 +12,7 @@ import (
 type ProdRepo interface {
     GetSkuByCond(ctx context.Context, sku *entity.Sku, limit, offset int) (ret []*entity.Sku, total int64, err error)
     GetSkuBySkuIds(ctx context.Context, ids []uint64, limit, offset int) (ret []*entity.Sku, total int64, err error)
+    UpdateSkuStock(ctx context.Context, id uint64, changeVal int64) (err error)
 }
 type ProdUseCase struct {
     repo ProdRepo
@@ -41,4 +42,12 @@ func (pc *ProdUseCase) GetSkuByCondHandler(ctx context.Context, req *v1.GetSkuBy
         DeepCopy:    true,
     })
     return ret, total, err
+}
+
+func (pc *ProdUseCase) UpdateSkuStockHandler(ctx context.Context, req *v1.UpdateSkuStockRequest) (err error) {
+    pc.log.WithContext(ctx).Infof("UpdateSkuStockHandler args: %v", utils.ToJsonString(req))
+    if err := pc.repo.UpdateSkuStock(ctx, req.SkuId, req.ChangeVal); err != nil {
+        return err
+    }
+    return nil
 }

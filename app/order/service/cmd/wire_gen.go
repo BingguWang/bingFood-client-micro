@@ -24,13 +24,18 @@ func wireApp(confServer *conf.Server, confData *conf.Data, jwt *conf.JWT, logger
 	if err != nil {
 		return nil, nil, err
 	}
-	db := data.NewDB(confData)
-	dataData, cleanup, err := data.NewData(confData, client, logger, db)
+	node, err := data.NewSnowFlakeNode(confData)
 	if err != nil {
 		return nil, nil, err
 	}
-	orderRepo := data.NewOrderRepo(dataData, logger)
+	db := data.NewDB(confData)
+	dataData, cleanup, err := data.NewData(confData, client, node, logger, db)
+	if err != nil {
+		return nil, nil, err
+	}
 	discovery := biz.NewDiscovery(registry)
+	prodServiceClient := data.NewProdServiceClient(discovery)
+	orderRepo := data.NewOrderRepo(dataData, prodServiceClient, logger)
 	cartServiceClient := biz.NewCartServiceClient(discovery)
 	ordercase := biz.NewOrdercase(orderRepo, cartServiceClient, logger)
 	orderServiceImpl := service.NewOrderService(ordercase)

@@ -12,6 +12,7 @@ import (
     "github.com/go-kratos/kratos/v2/registry"
     "github.com/go-kratos/kratos/v2/transport/grpc"
     jwt2 "github.com/golang-jwt/jwt/v4"
+    "github.com/jinzhu/copier"
 )
 
 type OrderCase struct {
@@ -20,14 +21,15 @@ type OrderCase struct {
     log *log.Helper
 }
 type OrderSrvInterface interface {
-    SettleOrder(ctx context.Context, req *v1.SettleOrderRequest) (ret *v12.SettleOrderReply, err error)
+    SettleOrder(ctx context.Context, req *v1.SettleOrderRequest) (ret *v1.SettleOrderReply_Data, err error)
+    SubmitOrder(ctx context.Context, req *v1.SubmitOrderRequest) (string, error)
 }
 
 func NewOrderCase(oc v12.OrderServiceClient, logger log.Logger) *OrderCase {
     return &OrderCase{oc: oc, log: log.NewHelper(logger)}
 }
 
-func (oc *OrderCase) SettleOrder(ctx context.Context, req *v1.SettleOrderRequest) (ret *v12.SettleOrderReply, err error) {
+func (oc *OrderCase) SettleOrder(ctx context.Context, req *v1.SettleOrderRequest) (*v1.SettleOrderReply_Data, error) {
     oc.log.WithContext(ctx).Infof("SettleOrder args: %v", utils.ToJsonString(req))
 
     // todo 假设一下在这里加入context参数，其实是要在其他 地方塞入
@@ -37,12 +39,33 @@ func (oc *OrderCase) SettleOrder(ctx context.Context, req *v1.SettleOrderRequest
     userMobile := valCtx.Value("userMobile").(string)
 
     // 调用order service 结算订单
-    ret, err = oc.oc.SettleOrder(valCtx, &v12.SettleOrderRequest{CartIds: req.CartIds, UserMobile: userMobile})
-    log.Infof("调用服务bingfood.order.service/SettleOrder, 得到结果: %v ", utils.ToJsonString(ret))
+    result, err := oc.oc.SettleOrder(valCtx, &v12.SettleOrderRequest{CartIds: req.CartIds, UserMobile: userMobile})
     if err != nil {
         return nil, err
     }
-    return ret, err
+    log.Infof("调用服务bingfood.order.service/SettleOrder, 得到结果: %v ", utils.ToJsonString(result))
+    var ret v1.SettleOrderReply_Data
+    copier.CopyWithOption(&ret, result.Data, copier.Option{
+        IgnoreEmpty: false,
+        DeepCopy:    true,
+    })
+    return &ret, err
+}
+
+func (oc *OrderCase) SubmitOrder(ctx context.Context, req *v1.SubmitOrderRequest) (string, error) {
+    oc.log.WithContext(ctx).Infof("SubmitOrder args: %v", utils.ToJsonString(req))
+
+    var r v12.SubmitOrderRequest
+    copier.CopyWithOption(&r, req, copier.Option{
+        IgnoreEmpty: false,
+        DeepCopy:    true,
+    })
+    ret, err := oc.oc.SubmitOrder(ctx, &r)
+    if err != nil {
+        return "", err
+    }
+    log.Infof("调用服务bingfood.order.service/SubmitOrder, 得到结果: %v ", utils.ToJsonString(ret))
+    return ret.OrderNumber, nil
 }
 
 func NewOrderServiceClient(r registry.Discovery, ac *conf.JWT) v12.OrderServiceClient {

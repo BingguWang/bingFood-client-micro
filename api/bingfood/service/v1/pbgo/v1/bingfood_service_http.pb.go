@@ -20,18 +20,21 @@ const _ = http.SupportPackageIsVersion1
 const OperationBingfoodServiceAddCartItem = "/bingfood.service.v1.BingfoodService/AddCartItem"
 const OperationBingfoodServiceGetCartDetail = "/bingfood.service.v1.BingfoodService/GetCartDetail"
 const OperationBingfoodServiceOrderSettle = "/bingfood.service.v1.BingfoodService/OrderSettle"
+const OperationBingfoodServiceOrderSubmit = "/bingfood.service.v1.BingfoodService/OrderSubmit"
 const OperationBingfoodServiceUserLoginOrRegister = "/bingfood.service.v1.BingfoodService/UserLoginOrRegister"
 
 type BingfoodServiceHTTPServer interface {
 	AddCartItem(context.Context, *AddCartItemRequest) (*AddCartItemReply, error)
 	GetCartDetail(context.Context, *GetCartByCondRequest) (*GetCartByCondReply, error)
 	OrderSettle(context.Context, *SettleOrderRequest) (*SettleOrderReply, error)
+	OrderSubmit(context.Context, *SubmitOrderRequest) (*SubmitOrderReply, error)
 	UserLoginOrRegister(context.Context, *UserLoginOrRegisterRequest) (*UserLoginOrRegisterReply, error)
 }
 
 func RegisterBingfoodServiceHTTPServer(s *http.Server, srv BingfoodServiceHTTPServer) {
 	r := s.Route("/")
 	r.POST("/order/settle", _BingfoodService_OrderSettle0_HTTP_Handler(srv))
+	r.POST("/order/submit", _BingfoodService_OrderSubmit0_HTTP_Handler(srv))
 	r.POST("/cart/addItem", _BingfoodService_AddCartItem0_HTTP_Handler(srv))
 	r.POST("/cart/getDetail", _BingfoodService_GetCartDetail0_HTTP_Handler(srv))
 	r.POST("/user/loginOrRegister", _BingfoodService_UserLoginOrRegister0_HTTP_Handler(srv))
@@ -52,6 +55,25 @@ func _BingfoodService_OrderSettle0_HTTP_Handler(srv BingfoodServiceHTTPServer) f
 			return err
 		}
 		reply := out.(*SettleOrderReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BingfoodService_OrderSubmit0_HTTP_Handler(srv BingfoodServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SubmitOrderRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBingfoodServiceOrderSubmit)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.OrderSubmit(ctx, req.(*SubmitOrderRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*SubmitOrderReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -117,6 +139,7 @@ type BingfoodServiceHTTPClient interface {
 	AddCartItem(ctx context.Context, req *AddCartItemRequest, opts ...http.CallOption) (rsp *AddCartItemReply, err error)
 	GetCartDetail(ctx context.Context, req *GetCartByCondRequest, opts ...http.CallOption) (rsp *GetCartByCondReply, err error)
 	OrderSettle(ctx context.Context, req *SettleOrderRequest, opts ...http.CallOption) (rsp *SettleOrderReply, err error)
+	OrderSubmit(ctx context.Context, req *SubmitOrderRequest, opts ...http.CallOption) (rsp *SubmitOrderReply, err error)
 	UserLoginOrRegister(ctx context.Context, req *UserLoginOrRegisterRequest, opts ...http.CallOption) (rsp *UserLoginOrRegisterReply, err error)
 }
 
@@ -159,6 +182,19 @@ func (c *BingfoodServiceHTTPClientImpl) OrderSettle(ctx context.Context, in *Set
 	pattern := "/order/settle"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBingfoodServiceOrderSettle))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *BingfoodServiceHTTPClientImpl) OrderSubmit(ctx context.Context, in *SubmitOrderRequest, opts ...http.CallOption) (*SubmitOrderReply, error) {
+	var out SubmitOrderReply
+	pattern := "/order/submit"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBingfoodServiceOrderSubmit))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

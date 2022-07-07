@@ -8,11 +8,18 @@ import "v1/bingfood_cart_service.proto";
 
 option go_package = "api/bingfood/service/v1;v1";
 
-
+// 这里不是自己写的，而是采用了import的，但是最好是自己重新写message比较好
 service BingfoodService {
   rpc OrderSettle (bingfood.service.v1.SettleOrderRequest) returns (bingfood.service.v1.SettleOrderReply) {
     option (google.api.http) = {
       post: "/order/settle",
+      body: "*",
+    };
+  }
+
+  rpc OrderSubmit (bingfood.service.v1.SubmitOrderRequest) returns (bingfood.service.v1.SubmitOrderReply) {
+    option (google.api.http) = {
+      post: "/order/submit",
       body: "*",
     };
   }
@@ -37,6 +44,7 @@ service BingfoodService {
       body: "*",
     };
   }
+
 }
 
 message UserLoginOrRegisterRequest {

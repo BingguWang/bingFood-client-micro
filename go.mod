@@ -3,6 +3,7 @@ module github.com/BingguWang/bingfood-client-micro
 go 1.17
 
 require (
+	github.com/bwmarrin/snowflake v0.3.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-kratos/kratos/contrib/registry/etcd/v2 v2.0.0-20220705004336-20b7c9f4d7ef
 	github.com/go-kratos/kratos/v2 v2.3.1

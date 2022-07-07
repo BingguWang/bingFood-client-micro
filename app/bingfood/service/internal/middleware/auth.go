@@ -26,6 +26,7 @@ func AuthMiddleware() middleware.Middleware {
 
                 claims, err := utils.ParseToken(tokenString)
                 fmt.Println(utils.ToJsonString(claims))
+                ctx = context.WithValue(ctx, "claims", claims)
                 if err != nil {
                     if err == utils.TokenIsExpired {
                         return nil, errors.New(400, "token授权已过期", "failed")

@@ -6,6 +6,7 @@ import (
     "github.com/BingguWang/bingfood-client-micro/app/prod/service/internal/data/entity"
     "github.com/BingguWang/bingfood-client-micro/app/prod/service/internal/utils"
     "github.com/go-kratos/kratos/v2/log"
+    "gorm.io/gorm"
 )
 
 type prodRepo struct {
@@ -41,4 +42,21 @@ func (c *prodRepo) GetSkuBySkuIds(ctx context.Context, ids []uint64, limit, offs
         return
     }
     return ret, total, nil
+}
+func (c *prodRepo) UpdateSkuStock(ctx context.Context, id uint64, changeVal int64) (err error) {
+    c.log.WithContext(ctx).Infof("update sku stock, id is : %v", utils.ToJsonString(id))
+    db := c.data.db
+
+    if err := db.Transaction(func(tx *gorm.DB) (err error) {
+        // 更新库存
+        if err = tx.Model(&entity.Sku{}).Where("sku_id = ? AND stock + ? >=0 ", id, changeVal).Update("stock", gorm.Expr("stock + ?", changeVal)).Error; err != nil {
+            log.Errorf("update sku stock failed : %v", err)
+            return err
+        }
+        log.Infof("update sku successfully")
+        return
+    }); err != nil {
+        return err
+    }
+    return nil
 }

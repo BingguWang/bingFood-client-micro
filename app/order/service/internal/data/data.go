@@ -1,6 +1,12 @@
 package data
 
 import (
+    "context"
+    v1 "github.com/BingguWang/bingfood-client-micro/api/prod/service/v1/pbgo/v1"
+    "github.com/bwmarrin/snowflake"
+    "github.com/go-kratos/kratos/v2/middleware/recovery"
+    "github.com/go-kratos/kratos/v2/registry"
+    "github.com/go-kratos/kratos/v2/transport/grpc"
     "github.com/go-redis/redis/v8"
     "github.com/google/wire"
     "gorm.io/driver/mysql"
@@ -15,21 +21,29 @@ import (
 )
 
 // ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewDB, NewOrderRepo, NewRedis)
+var ProviderSet = wire.NewSet(
+    NewData,
+    NewDB,
+    NewOrderRepo,
+    NewRedis,
+    NewSnowFlakeNode,
+    NewProdServiceClient,
+)
 
 // Data .
 type Data struct {
     // TODO wrapped database client
     db       *gorm.DB
     redisCli *redis.Client
+    node     *snowflake.Node
 }
 
 // NewData .
-func NewData(c *conf.Data, rd *redis.Client, logger log.Logger, db *gorm.DB) (*Data, func(), error) {
+func NewData(c *conf.Data, rd *redis.Client, node *snowflake.Node, logger log.Logger, db *gorm.DB) (*Data, func(), error) {
     cleanup := func() {
         log.NewHelper(logger).Info("closing the data resources")
     }
-    return &Data{db: db, redisCli: rd}, cleanup, nil
+    return &Data{db: db, redisCli: rd, node: node}, cleanup, nil
 }
 
 // *conf.Data就是数据的配置结构体
@@ -79,4 +93,20 @@ func NewDB(c *conf.Data) *gorm.DB {
     lg.Printf("init mysql successful")
 
     return db
+}
+
+func NewProdServiceClient(r registry.Discovery) v1.ProdServiceClient {
+    conn, err := grpc.DialInsecure(
+        context.Background(),
+        grpc.WithEndpoint("discovery:///bingfood.prod.service"),
+        grpc.WithDiscovery(r),
+        grpc.WithMiddleware(
+            recovery.Recovery(),
+        ),
+    )
+    if err != nil {
+        panic(err)
+    }
+    c := v1.NewProdServiceClient(conn)
+    return c
 }

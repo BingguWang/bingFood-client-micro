@@ -71,20 +71,9 @@ func (uc *CartUseCase) GetCartHandler(ctx context.Context, req *v1.GetCartByCond
         return nil, 0, v1.ErrorInternal("获取购物车失败, internal error : %v", err.Error())
     }
 
-    for _, ca := range ret {
-        rt, err := uc.usc.GetSkuByCond(ctx, &v2.GetSkuByCondRequest{
-            SkuCond: &v2.Sku{SkuId: ca.SkuId},
-        })
-        log.Infof("调用服务bingfood.prod.service/GetSkuByCond, 得到结果: %v ", utils.ToJsonString(rt))
-        if err != nil {
-            return nil, 0, err
-        }
-        if rt.Data.List == nil {
-            continue
-        }
-        copier.Copy(&ca.Sku, rt.Data.List[0])
+    if e := uc.FillSkuInfo(ctx, &ret); e != nil {
+        return nil, 0, v1.ErrorInternal("获取sku信息失败, internal error : %v", e.Error())
     }
-
     return ret, total, nil
 }
 
@@ -97,8 +86,30 @@ func (uc *CartUseCase) GetCartByIdsHandler(ctx context.Context, req *v1.GetCartB
     limit := (int)(req.PageInfo.PageSize)
     offset := (int)(req.PageInfo.Page)
     ret, total, err := uc.repo.GetCartByIds(ctx, req.Ids, limit, offset)
+
     if err != nil {
         return nil, 0, v1.ErrorInternal("获取购物车失败, internal error : %v", err.Error())
     }
+
+    if err := uc.FillSkuInfo(ctx, &ret); err != nil {
+        return nil, 0, v1.ErrorInternal("获取sku信息失败, internal error : %v", err.Error())
+    }
     return ret, total, nil
+}
+
+func (uc *CartUseCase) FillSkuInfo(ctx context.Context, ret *[]*entity.Cart) error {
+    for _, ca := range *ret {
+        rt, err := uc.usc.GetSkuByCond(ctx, &v2.GetSkuByCondRequest{
+            SkuCond: &v2.Sku{SkuId: ca.SkuId},
+        })
+        log.Infof("调用服务bingfood.prod.service/GetSkuByCond, 得到结果: %v ", utils.ToJsonString(rt))
+        if err != nil {
+            return err
+        }
+        if rt.Data.List == nil {
+            continue
+        }
+        copier.Copy(&ca.Sku, rt.Data.List[0])
+    }
+    return nil
 }

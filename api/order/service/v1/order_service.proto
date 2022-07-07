@@ -3,17 +3,33 @@ syntax = "proto3";
 package order.service.v1;
 
 import "google/api/annotations.proto";
+import "v1/order_user_service.proto";
 
 option go_package = "api/order/service/v1;v1";
 
 
 service OrderService {
   rpc SettleOrder (SettleOrderRequest) returns (SettleOrderReply) {
-    //    option (google.api.http) = {
-    //      post: "/order/toSettle",
-    //      body: "*",
-    //    };
   }
+
+  rpc SubmitOrder (SubmitOrderRequest) returns (SubmitOrderReply) {
+  }
+}
+
+message SubmitOrderRequest{
+  string remarks = 1;                // 备注
+  order.service.v1.UserDeliveryAddr receiveAddr = 2;// 接收地址
+  string receiverMobile = 3;                  // 接收人号码
+  int32 redPacket = 4;                         // 红包
+  uint32   payStatus = 5;                         // 支付状态
+  uint64  shopId = 6;                         // 商家id
+  string userMobile = 7; // 用户手机号码
+}
+
+message SubmitOrderReply{
+  uint32  retCode = 1;
+  string  retMsg = 2;
+  string  orderNumber = 3;
 }
 
 message SettleOrderRequest  {

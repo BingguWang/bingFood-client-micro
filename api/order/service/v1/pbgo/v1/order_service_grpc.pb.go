@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OrderServiceClient interface {
 	SettleOrder(ctx context.Context, in *SettleOrderRequest, opts ...grpc.CallOption) (*SettleOrderReply, error)
+	SubmitOrder(ctx context.Context, in *SubmitOrderRequest, opts ...grpc.CallOption) (*SubmitOrderReply, error)
 }
 
 type orderServiceClient struct {
@@ -42,11 +43,21 @@ func (c *orderServiceClient) SettleOrder(ctx context.Context, in *SettleOrderReq
 	return out, nil
 }
 
+func (c *orderServiceClient) SubmitOrder(ctx context.Context, in *SubmitOrderRequest, opts ...grpc.CallOption) (*SubmitOrderReply, error) {
+	out := new(SubmitOrderReply)
+	err := c.cc.Invoke(ctx, "/order.service.v1.OrderService/SubmitOrder", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServiceServer is the server API for OrderService service.
 // All implementations must embed UnimplementedOrderServiceServer
 // for forward compatibility
 type OrderServiceServer interface {
 	SettleOrder(context.Context, *SettleOrderRequest) (*SettleOrderReply, error)
+	SubmitOrder(context.Context, *SubmitOrderRequest) (*SubmitOrderReply, error)
 	mustEmbedUnimplementedOrderServiceServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedOrderServiceServer struct {
 
 func (UnimplementedOrderServiceServer) SettleOrder(context.Context, *SettleOrderRequest) (*SettleOrderReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SettleOrder not implemented")
+}
+func (UnimplementedOrderServiceServer) SubmitOrder(context.Context, *SubmitOrderRequest) (*SubmitOrderReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubmitOrder not implemented")
 }
 func (UnimplementedOrderServiceServer) mustEmbedUnimplementedOrderServiceServer() {}
 
@@ -88,6 +102,24 @@ func _OrderService_SettleOrder_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OrderService_SubmitOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubmitOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).SubmitOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/order.service.v1.OrderService/SubmitOrder",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).SubmitOrder(ctx, req.(*SubmitOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OrderService_ServiceDesc is the grpc.ServiceDesc for OrderService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +130,10 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SettleOrder",
 			Handler:    _OrderService_SettleOrder_Handler,
+		},
+		{
+			MethodName: "SubmitOrder",
+			Handler:    _OrderService_SubmitOrder_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

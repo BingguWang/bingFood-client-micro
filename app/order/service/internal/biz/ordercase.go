@@ -2,6 +2,7 @@ package biz
 
 import (
     "context"
+    "encoding/json"
     "fmt"
     v12 "github.com/BingguWang/bingfood-client-micro/api/cart/service/v1/pbgo/v1"
     v1 "github.com/BingguWang/bingfood-client-micro/api/order/service/v1/pbgo/v1"
@@ -29,8 +30,10 @@ type OrderRepo interface {
     FindByOrderNumber(context.Context, int64) (*entity.Order, error)
     //ListByOrderNumber(context.Context, string) ([]*entity.Order, error)
     //ListAll(context.Context) ([]*entity.Order, error)
-
     AddSettleToRedis(context.Context, string, string) (string, error)
+    GetSettleFromRedis(context.Context, string) (string, error)
+    DelSettleFromRedis(context.Context, string) (int64, error)
+    InsertOrder(context.Context, *entity.Order) (string, error)
 }
 
 func (oc *Ordercase) SettleOrderHandler(ctx context.Context, req *v1.SettleOrderRequest) (ret interface{}, err error) {
@@ -114,7 +117,6 @@ func (oc *Ordercase) SettleOrder(ctx context.Context, req *v1.SettleOrderRequest
         IgnoreEmpty: false,
         DeepCopy:    true,
     })
-
     retData := &v1.SettleOrderReply_Data{
         ShopId:         shopId,
         UserMobile:     req.UserMobile,
@@ -124,8 +126,8 @@ func (oc *Ordercase) SettleOrder(ctx context.Context, req *v1.SettleOrderRequest
         ProdAmount:     priceTotal,
         DiscountAmount: discountTotal,
         FinalAmount:    finalTotal,
-        //OrderItems:     items,
-        ProdName: prodName,
+        OrderItems:     items,
+        ProdName:       prodName,
     }
 
     // 返回的结算内容存到redis里,后面的提交订单时不需要前端再传过来了,提交订单的时候删掉
@@ -135,4 +137,49 @@ func (oc *Ordercase) SettleOrder(ctx context.Context, req *v1.SettleOrderRequest
     }
     fmt.Println(utils.ToJsonString(retData))
     return retData, nil
+}
+
+func (oc *Ordercase) SubmitOrderHandler(ctx context.Context, req *v1.SubmitOrderRequest) (orderNumber string, err error) {
+    oc.log.WithContext(ctx).Infof("SubmitOrderHandler args: %v", utils.ToJsonString(req))
+    // 去redis取出结算好的订单信息
+    key := "settledOrder_" + strconv.FormatUint(req.ShopId, 10) + "_" + req.UserMobile
+    var data string
+    data, err = oc.repo.GetSettleFromRedis(ctx, key)
+    if err != nil {
+        if data == "" {
+            err = v1.ErrorInternal("表单已过期，请重新结算")
+        }
+        return
+    }
+
+    var settledOrder v1.SettleOrderReply_Data
+    _ = json.Unmarshal([]byte(data), &settledOrder)
+    fmt.Println(utils.ToJsonString(settledOrder))
+
+    var od entity.Order
+    _ = copier.CopyWithOption(&od, &settledOrder, copier.Option{
+        IgnoreEmpty: false,
+        DeepCopy:    true,
+    })
+    _ = copier.CopyWithOption(&od.ReceiveAddr, req.ReceiveAddr, copier.Option{
+        IgnoreEmpty: false,
+        DeepCopy:    true,
+    })
+
+    for i := 0; i < len(od.OrderItems); i++ {
+        od.OrderItems[i].OrderNumber = od.OrderNumber
+    }
+    od.Remark = req.Remarks
+
+    // 插入order及order_item,更新库存
+    if _, err := oc.repo.InsertOrder(ctx, &od); err != nil {
+        return "", err
+    }
+
+    // redis删除之前保存的结算信息
+    if _, err := oc.repo.DelSettleFromRedis(ctx, key); err != nil {
+        return "", err
+    }
+
+    return od.OrderNumber, nil
 }

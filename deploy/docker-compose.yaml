@@ -162,7 +162,7 @@ services:
 
 
   etcd:
-    image: bitnami/etcd:3
+    image: bitnami/etcd:latest
     hostname: etcd
     container_name: etcd-service
     #    deploy:
@@ -178,16 +178,23 @@ services:
     volumes:
       - "/app/etcd/data:/bitnami/etcd/data"
     environment:
-      - "ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379"
-      - "ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379"
-      #集群节点之间监听2380
-      - "ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380"
-      - "ETCD_INITIAL_ADVERTISE_PEER_URLS=http://0.0.0.0:2380"
-      #参数指不用密码可以连接
+      - "ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379"
       - "ALLOW_NONE_AUTHENTICATION=yes"
-      - "ETCD_INITIAL_CLUSTER=node1=http://0.0.0.0:2380"
-      - "ETCD_NAME=node1"
-      - "ETCD_DATA_DIR=/opt/bitnami/etcd/data"
     ports:
       - 2379:2379
       - 2380:2380
+
+  redis:
+    image: redis:6.2.6
+    hostname: redis
+    container_name: redis-service
+    restart: always
+    privileged: true
+    volumes:
+      - "/app/redis/data:/data"
+      - "/app/redis/conf/redis.conf:/etc/redis/redis.conf"
+      # redis不具有自动创建logs的权限，需要在redis.conf指定相对位置，才能映射出日志文件
+      - "/app/redis/logs:/logs"
+    ports:
+      - 6379:6379
+    command: redis-server /etc/redis/redis.conf

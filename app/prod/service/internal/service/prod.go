@@ -40,3 +40,15 @@ func (s *ProdServiceImpl) GetSkuByCond(ctx context.Context, in *v1.GetSkuByCondR
         },
     }, nil
 }
+
+func (s *ProdServiceImpl) UpdateSkuStock(ctx context.Context, in *v1.UpdateSkuStockRequest) (*v1.UpdateSkuStockReply, error) {
+    if err := s.pc.UpdateSkuStockHandler(ctx, in); err != nil {
+        return &v1.UpdateSkuStockReply{
+            RetMsg: "更新库存失败 : " + err.Error(),
+        }, err
+    }
+    return &v1.UpdateSkuStockReply{
+        RetCode: 200,
+        RetMsg:  "成功更新库存",
+    }, nil
+}

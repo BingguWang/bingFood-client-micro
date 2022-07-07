@@ -4,6 +4,7 @@ import (
     "context"
     "fmt"
     v12 "github.com/BingguWang/bingfood-client-micro/api/bingfood/service/v1/pbgo/v1"
+    v13 "github.com/BingguWang/bingfood-client-micro/api/nsqSrv/service/v1/pbgo/v1"
     v11 "github.com/BingguWang/bingfood-client-micro/api/order/service/v1/pbgo/v1"
     "github.com/BingguWang/bingfood-client-micro/api/prod/service/v1/pbgo/v1"
     "github.com/BingguWang/bingfood-client-micro/app/order/service/internal/biz"
@@ -19,15 +20,17 @@ import (
 type orderRepo struct {
     data *Data
     pc   v1.ProdServiceClient
+    nc   v13.NsqServiceClient
 
     log *log.Helper
 }
 
 // NewGreeterRepo .
-func NewOrderRepo(data *Data, pc v1.ProdServiceClient, logger log.Logger) biz.OrderRepo {
+func NewOrderRepo(data *Data, pc v1.ProdServiceClient, nc v13.NsqServiceClient, logger log.Logger) biz.OrderRepo {
     return &orderRepo{
         data: data,
         pc:   pc,
+        nc:   nc,
         log:  log.NewHelper(logger),
     }
 }
@@ -77,10 +80,14 @@ func (o *orderRepo) InsertOrder(ctx context.Context, order *entity.Order) (strin
         }
 
         // todo 把订单号存入到MQ里,超时未支付则状态设为取消, 因为没有用分布式事务，所以操作放在这里，用了dtm后应该放在bingfood服务里
-        //if err = PubOrderNumberToMQ(od.OrderNumber); err != nil {
-        //    return
-        //}
-
+        if _, err := o.nc.PubUnPayOrderToMQ(ctx, &v13.PubUnPayOrderToMQRequest{
+            OrderNumber: order.OrderNumber,
+            Msg:         []byte(order.OrderNumber),
+            Topic:       "unPayOrder",
+        }); err != nil {
+            log.Errorf("推送未支付订单到MQ失败 : %v", err.Error())
+            return err
+        }
         return
     }); err != nil {
         // todo 回滚库存, 暂时使用手动回滚，后面可以结合dtm分布式事务

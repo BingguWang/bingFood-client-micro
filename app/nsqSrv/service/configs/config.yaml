@@ -1,0 +1,25 @@
+server:
+  http:
+    addr: 0.0.0.0:8011
+    timeout: 1s
+  grpc:
+    addr: 0.0.0.0:9011
+    timeout: 1s
+
+data:
+  database:
+    dsn: root:1234@tcp(1.14.163.5:3308)/bingFood?charset=utf8mb4&parseTime=True&loc=Local
+  redis:
+    addr: 1.14.163.5:6379
+    password: wb430481
+    read_timeout: 0.2s
+    write_timeout: 0.2s
+    db: 0
+jwt:
+  service_secret_key: bingguWang_bingfood
+
+nsq:
+  addr: 1.14.163.5:4150
+
+
+

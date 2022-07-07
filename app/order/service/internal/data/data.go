@@ -3,11 +3,14 @@ package data
 import (
     "context"
     v1 "github.com/BingguWang/bingfood-client-micro/api/prod/service/v1/pbgo/v1"
+    v13 "github.com/BingguWang/bingfood-client-micro/api/nsqSrv/service/v1/pbgo/v1"
     "github.com/bwmarrin/snowflake"
+    "github.com/go-kratos/kratos/v2/middleware/auth/jwt"
     "github.com/go-kratos/kratos/v2/middleware/recovery"
     "github.com/go-kratos/kratos/v2/registry"
     "github.com/go-kratos/kratos/v2/transport/grpc"
     "github.com/go-redis/redis/v8"
+    jwt2 "github.com/golang-jwt/jwt/v4"
     "github.com/google/wire"
     "gorm.io/driver/mysql"
     "gorm.io/gorm"
@@ -27,6 +30,7 @@ var ProviderSet = wire.NewSet(
     NewOrderRepo,
     NewRedis,
     NewSnowFlakeNode,
+    NewNsqServiceClient,
     NewProdServiceClient,
 )
 
@@ -91,7 +95,6 @@ func NewDB(c *conf.Data) *gorm.DB {
     sqlDB.SetMaxOpenConns(m.MaxOpenConns)
 
     lg.Printf("init mysql successful")
-
     return db
 }
 
@@ -108,5 +111,24 @@ func NewProdServiceClient(r registry.Discovery) v1.ProdServiceClient {
         panic(err)
     }
     c := v1.NewProdServiceClient(conn)
+    return c
+}
+
+func NewNsqServiceClient(ac *conf.JWT, r registry.Discovery) v13.NsqServiceClient {
+    conn, err := grpc.DialInsecure(
+        context.Background(),
+        grpc.WithEndpoint("discovery:///bingfood.nsq.service"),
+        grpc.WithDiscovery(r),
+        grpc.WithMiddleware(
+            recovery.Recovery(),
+            jwt.Client(func(token *jwt2.Token) (interface{}, error) {
+                return []byte(ac.ServiceSecretKey), nil
+            }, jwt.WithSigningMethod(jwt2.SigningMethodHS256)),
+        ),
+    )
+    if err != nil {
+        panic(err)
+    }
+    c := v13.NewNsqServiceClient(conn)
     return c
 }

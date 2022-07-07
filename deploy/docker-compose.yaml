@@ -198,3 +198,32 @@ services:
     ports:
       - 6379:6379
     command: redis-server /etc/redis/redis.conf
+
+
+  nsqlookupd:
+    image: nsqio/nsq
+    container_name: nsqlookupd-service
+    command: /nsqlookupd
+    hostname: nsqlookupd
+    ports:
+      - "4161:4161"
+      - "4160:4160"
+  nsqd:
+    image: nsqio/nsq:latest
+    container_name: nsqd-service
+    command: /nsqd --lookupd-tcp-address=nsqlookupd:4160 --data-path=/data --broadcast-address=1.14.163.5
+    depends_on:
+      - nsqlookupd
+    hostname: nsqd
+    ports:
+      - "4151:4151"
+      - "4150:4150"
+  nsqadmin:
+    image: nsqio/nsq
+    container_name: nsqadmin-service
+    command: /nsqadmin --lookupd-http-address=nsqlookupd:4161
+    depends_on:
+      - nsqlookupd
+    hostname: nsqadmin
+    ports:
+      - "4171:4171"

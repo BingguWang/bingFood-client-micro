@@ -35,7 +35,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, jwt *conf.JWT, logger
 	}
 	discovery := biz.NewDiscovery(registry)
 	prodServiceClient := data.NewProdServiceClient(discovery)
-	orderRepo := data.NewOrderRepo(dataData, prodServiceClient, logger)
+	nsqServiceClient := data.NewNsqServiceClient(jwt, discovery)
+	orderRepo := data.NewOrderRepo(dataData, prodServiceClient, nsqServiceClient, logger)
 	cartServiceClient := biz.NewCartServiceClient(discovery)
 	ordercase := biz.NewOrdercase(orderRepo, cartServiceClient, logger)
 	orderServiceImpl := service.NewOrderService(ordercase)
